@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent" android:background="@android:color/white"
+              android:baselineAligned="false">
+
+    <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Setting SFA"
+            android:id="@+id/OPTMB2" android:layout_gravity="center" android:textStyle="bold" android:textSize="24sp"
+            android:textColor="@android:color/black" android:gravity="center_horizontal" android:background="@android:color/darker_gray"/>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="12dip" android:background="#F0ECEB">
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="60dip" android:background="#A3D6F5" android:baselineAligned="false">
+        <TextView
+                android:layout_width="120dip"
+                android:layout_height="wrap_content"
+                android:text="Web Server"
+                android:id="@+id/textView" android:layout_gravity="left|center_vertical"
+                android:textColor="@android:color/black" android:layout_marginLeft="7dip" android:textStyle="bold"
+                android:textSize="14sp"/>
+        <EditText android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:id="@+id/Setting_InputWeb" android:layout_gravity="center_horizontal|bottom" android:hint="web.borwita.co.id:9020/XXX"
+                  android:textColor="@android:color/black" android:singleLine="true"
+                  android:textSize="14sp"/>
+        <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/Setting_InputWebMsg" android:layout_gravity="center" android:adjustViewBounds="false"
+                android:src="@drawable/dfa_error"/>
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="60dip" android:background="#CEEBFB">
+        <TextView
+                android:layout_width="120dip"
+                android:layout_height="wrap_content"
+                android:text="Mode"
+                android:id="@+id/textView1" android:layout_gravity="left|center_vertical"
+                android:textColor="@android:color/black" android:layout_marginLeft="7dip" android:textStyle="bold"
+                android:textSize="14sp"/>
+        <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New ToggleButton"
+                android:id="@+id/SettingTBMode" android:layout_gravity="center" android:checked="false"
+                android:textOff="Single" android:textOn="Multi"/>
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="60dip" android:background="#A3D6F5" android:baselineAligned="false">
+        <TextView
+                android:layout_width="120dip"
+                android:layout_height="wrap_content"
+                android:text="Cabang"
+                android:id="@+id/textView" android:layout_gravity="left|center_vertical"
+                android:textColor="@android:color/black" android:layout_marginLeft="7dip" android:textStyle="bold"
+                android:textSize="14sp"/>
+        <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/Setting_SpinnerCabang" android:layout_gravity="center"/>
+        <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/Setting_InputCabangMsg" android:layout_gravity="center" android:adjustViewBounds="false"
+                android:src="@drawable/dfa_error"/>
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="40dip" android:background="#CEEBFB">
+        <TextView
+                android:layout_width="150dip"
+                android:layout_height="wrap_content"
+                android:text="Layar Perangkat :"
+                android:id="@+id/textView4" android:layout_gravity="left|center_vertical"
+                android:textColor="@android:color/black" android:layout_marginLeft="7dip" android:textStyle="bold"
+                android:textSize="14sp"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="xxx"
+                android:id="@+id/Setting_TxtDeviceScreen" android:layout_gravity="left|center_vertical"
+                android:textColor="@android:color/black" android:layout_marginLeft="7dip" android:textStyle="bold"
+                android:textSize="14sp"/>
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="40dip" android:background="#A3D6F5">
+        <TextView
+                android:layout_width="150dip"
+                android:layout_height="wrap_content"
+                android:text="Lokasi Terakhir :"
+                android:id="@+id/textView4" android:layout_gravity="left|center_vertical"
+                android:textColor="@android:color/black" android:layout_marginLeft="7dip" android:textStyle="bold"
+                android:textSize="14sp"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="xxx"
+                android:id="@+id/Setting_TxtLocation" android:layout_gravity="left|center_vertical"
+                android:textColor="@android:color/black" android:layout_marginLeft="7dip" android:textStyle="bold"
+                android:textSize="14sp"/>
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="40dip" android:background="#CEEBFB">
+        <TextView
+                android:layout_width="150dip"
+                android:layout_height="wrap_content"
+                android:text="Kode Keamanan :"
+                android:id="@+id/textView4" android:layout_gravity="left|center_vertical"
+                android:textColor="@android:color/black" android:layout_marginLeft="7dip" android:textStyle="bold"
+                android:textSize="14sp"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="xxx"
+                android:id="@+id/Setting_TxtSecureCode" android:layout_gravity="left|center_vertical"
+                android:textColor="@android:color/black" android:layout_marginLeft="7dip" android:textStyle="bold"
+                android:textSize="14sp"/>
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="40dip" android:background="#A3D6F5">
+        <TextView
+                android:layout_width="150dip"
+                android:layout_height="wrap_content"
+                android:text="Email Penerima :"
+                android:id="@+id/textView4" android:layout_gravity="left|center_vertical"
+                android:textColor="@android:color/black" android:layout_marginLeft="7dip" android:textStyle="bold"
+                android:textSize="14sp"/>
+        <EditText android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:id="@+id/Setting_InputEmail" android:layout_gravity="center_horizontal|bottom" android:hint="test@borwita.co.id"
+                  android:textColor="@android:color/black" android:singleLine="true"
+                  android:textSize="14sp" android:inputType="textEmailAddress"/>
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="50dip" android:background="#d3d3d3" android:layout_gravity="center"
+                  android:gravity="center_vertical|center_horizontal" android:layout_marginTop="10dip">
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Submit"
+                android:layout_marginTop="5dip"
+                android:id="@+id/Setting_BtnSubmit" android:layout_gravity="center" style="@style/btnStyleGreen"
+                android:layout_marginLeft="5dip" android:layout_marginBottom="5dip"/>
+    </LinearLayout>
+</LinearLayout>

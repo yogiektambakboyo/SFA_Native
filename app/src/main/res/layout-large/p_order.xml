@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical" android:background="@android:color/white">
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:orientation="horizontal"
+                      android:layout_width="match_parent"
+                      android:layout_height="48dip" android:layout_marginBottom="3dip"
+                      android:layout_gravity="center" android:background="#3399FF">
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent" android:layout_marginRight="10dip">
+                <ImageView
+                        android:layout_width="36dip"
+                        android:layout_height="36dip"
+                        android:id="@+id/imageView1" android:layout_marginTop="7dip" android:layout_marginLeft="3dip"
+                        android:src="@drawable/sfa_order"/>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dip"
+                        android:text="ORDER BARANG"
+                        android:id="@+id/textView" android:textSize="25sp"
+                        android:textColor="@android:color/white" android:textStyle="bold"
+                        android:gravity="center|center_vertical|center_horizontal" android:layout_gravity="left"
+                        android:layout_marginLeft="5dip"/>
+            </LinearLayout>
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" android:layout_marginRight="10dip" android:gravity="right">
+                <ImageView
+                        android:layout_width="32dip"
+                        android:layout_height="32dip"
+                        android:id="@+id/Order_ImgFilter" android:layout_gravity="center"
+                        android:layout_marginRight="10dip" android:src="@drawable/imgbtn_filter"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+                       android:layout_width="match_parent"
+                       android:layout_height="wrap_content"
+                       android:layout_gravity="center|bottom"
+                       android:paddingTop="5dip" android:orientation="horizontal"
+                       android:gravity="center_horizontal|left" android:paddingBottom="5dip"
+                       android:background="#3399FF"
+                       android:layout_marginBottom="3dip">
+            <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" android:layout_gravity="left" android:gravity="left"
+                    android:paddingLeft="5dip">
+
+                <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content" android:layout_gravity="left" android:gravity="center_vertical|center_horizontal"
+                        >
+                    <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent" android:layout_gravity="center"
+                            android:gravity="center_vertical|center_horizontal">
+                        <LinearLayout
+                                android:orientation="vertical"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="5dip" android:gravity="center_vertical|center_horizontal">
+                            <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Perusahaan"
+                                    android:id="@+id/Order_Perusahaan" android:textColor="@android:color/white"
+                                    android:gravity="center_vertical|center_horizontal"/>
+                            <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="New Text"
+                                    android:id="@+id/Order_ShipTo" android:visibility="gone"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+            <EditText
+                    android:id="@+id/search"
+                    android:layout_width="350dip"
+                    android:layout_height="40sp" android:singleLine="true" android:textSize="14sp"
+                    android:hint="Masukkan Kata Kunci" android:maxLength="12">
+            </EditText>
+            <ImageView
+                    android:layout_width="32dip"
+                    android:layout_height="32dip"
+                    android:id="@+id/imageView" android:background="@drawable/sfa_search"
+                    android:layout_marginTop="3dip" android:layout_marginLeft="5dip"/>
+        </LinearLayout>
+
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+            <TextView
+                    android:layout_width="300dip"
+                    android:layout_height="wrap_content"
+                    android:text="Nama "
+                    android:id="@+id/textView" android:textSize="16sp" android:textStyle="bold"
+                    android:textColor="#3399FF" android:layout_marginLeft="5dip"/>
+            <TextView
+                    android:layout_width="60dip"
+                    android:layout_height="wrap_content"
+                    android:text="CRT"
+                    android:id="@+id/textView" android:textSize="16sp" android:textStyle="bold"
+                    android:textColor="#3399FF" android:gravity="center_vertical|center_horizontal"/>
+            <TextView
+                    android:layout_width="60dip"
+                    android:layout_height="wrap_content"
+                    android:text="PCS"
+                    android:id="@+id/textView" android:textSize="16sp" android:textStyle="bold"
+                    android:textColor="#3399FF" android:gravity="center_vertical|center_horizontal"/>
+        </LinearLayout>
+        <ListView
+                android:id="@+id/listview"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_below="@+id/search" android:layout_above="@+id/Order_InfoTotal"/>
+
+    </LinearLayout>
+
+    <LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+                   android:layout_width="match_parent"
+                   android:layout_height="30dip"
+                   android:layout_alignParentBottom="true"
+                   android:layout_gravity="bottom"
+                   android:paddingTop="5dip" android:orientation="horizontal"
+                   android:gravity="center_horizontal|left"
+                   android:background="#3399FF" android:id="@+id/Order_InfoTotal"
+                   android:focusableInTouchMode="false">
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" android:layout_gravity="left" android:gravity="left"
+                android:paddingLeft="5dip" android:layout_marginBottom="5dip">
+
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" android:layout_gravity="left" android:gravity="center_vertical|left"
+                    >
+                <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent" android:gravity="left">
+                    <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent" android:gravity="left">
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Total : "
+                                android:id="@+id/textView1" android:textColor="@android:color/black"/>
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Rp. "
+                                android:id="@+id/textView2" android:textColor="@android:color/black"/>
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:id="@+id/Order_TotalRp" android:textColor="@android:color/black"/>
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text=" / "
+                                android:id="@+id/textView3" android:textColor="@android:color/white"/>
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:id="@+id/Order_SKU" android:textColor="@android:color/black"/>
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text=" SKU"
+                                android:id="@+id/textView4" android:textColor="@android:color/black"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

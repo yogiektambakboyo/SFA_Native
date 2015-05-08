@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content" android:orientation="vertical">
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:layout_alignParentLeft="true" android:layout_marginLeft="5dip"
+            android:paddingTop="5dip" android:paddingBottom="5dip" android:background="@android:color/white"
+            android:gravity="center_vertical">
+
+        <TextView
+                android:id="@+id/Order_TxtSKUCode"
+                android:layout_width="90dip"
+                android:layout_height="wrap_content"
+                android:text="SKUCode" android:layout_gravity="center_vertical"
+                android:layout_marginRight="5dip" android:textSize="13sp"
+                android:textColor="#3399FF" android:visibility="gone"/>
+        <TextView
+                android:id="@+id/Order_TxtHint"
+                android:layout_width="180dip"
+                android:layout_height="wrap_content"
+                android:text="Keterangan" android:textSize="15sp"
+                android:textColor="#3399FF" android:layout_gravity="center_vertical" android:layout_marginLeft="5dip"/>
+        <TextView
+                android:id="@+id/Order_TxtCRT"
+                android:layout_width="60dip"
+                android:layout_height="wrap_content"
+                android:text="CRT" android:textSize="15sp"
+                android:textColor="#3399FF" android:layout_gravity="center" android:gravity="center_vertical|center_horizontal"/>
+        <TextView
+                android:id="@+id/Order_TxtPCS"
+                android:layout_width="60dip"
+                android:layout_height="wrap_content"
+                android:text="PCS" android:textSize="15sp"
+                android:textColor="#3399FF" android:layout_gravity="center_vertical" android:gravity="center_vertical|center_horizontal"/>
+        <TextView
+                android:id="@+id/Order_TxtPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="Harga"
+                android:layout_gravity="center_vertical" android:textSize="13sp" android:textColor="#3399FF" android:visibility="gone"/>
+        <TextView
+                android:id="@+id/Order_TxtAssigned"
+                android:layout_width="20dip"
+                android:layout_height="wrap_content" android:text="Assigned"
+                android:layout_gravity="center_horizontal|top" android:textSize="13sp" android:visibility="gone"/>
+        <ImageView
+                android:layout_width="20dip"
+                android:layout_height="20dip"
+                android:id="@+id/Order_ImgCheck" android:layout_gravity="center_horizontal|top"
+                android:visibility="gone"/>
+
+    </LinearLayout>
+
+</LinearLayout>
