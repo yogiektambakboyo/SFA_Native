@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.*;
@@ -34,6 +35,9 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 
 public class ActivitySync extends ListActivity {
@@ -57,14 +61,21 @@ public class ActivitySync extends ListActivity {
     private String      DB_SETTING="SETTING";
     private String DB_PATH_CSV_SUCCESS=Environment.getExternalStorageDirectory()+"/SFA/CSV/SUCCESS";
     private String FilePath= Environment.getExternalStorageDirectory()+"/foto.zip";
-    private String filename="",finalfilename="";
+    private String FilePathInv= Environment.getExternalStorageDirectory()+"/foto.zip";
+    private String FilePathRetur= Environment.getExternalStorageDirectory()+"/foto.zip";
+    private String FilePathKunjungan= Environment.getExternalStorageDirectory()+"/foto.zip";
+    private String FilePathZip= Environment.getExternalStorageDirectory()+"/foto.zip";
+    private String filename="",finalfilename="",filenameinv="",finalfilenameinv="",filenameretur="",finalfilenameretur="",filenamekunjungan="",finalfilenamekunjungan="";
     private int serverResponseCode = 0;
     private String upLoadServerUri = "http://192.168.31.10:9020/ws/uploadfile.php";
+
+    private final String TAG_OPT1 = "opt1";
+    private final String TAG_OPT2 = "opt2";
+    private final String TAG_OPT3 = "opt3";
 
     JSONArray UploadInfoArray = null;
     String Web;
 
-    // Array of integers points to images stored in /res/drawable-ldpi/
     int[] flags = new int[]{
             R.drawable.sfa_download,
             R.drawable.sfa_upload,
@@ -73,6 +84,7 @@ public class ActivitySync extends ListActivity {
 
     TextView TxtUser,TxtTime;
     ImageView ImgIcon;
+    ImageView ImgSummary;
 
     private String      DB_PATH= Environment.getExternalStorageDirectory()+"/SFA";
     ProgressDialog dialog;
@@ -84,15 +96,22 @@ public class ActivitySync extends ListActivity {
     String subject = "SFA ORDER MANUAL";
     String message = "SFA ORDER MANUAL";
 
+    String SalesName = "";
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.p_mainmenu);
+
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
 
         db = new FN_DBHandler(getApplicationContext(),DB_PATH,DB_ORDER+getPref(TAG_LASTLOGIN));
         dbset = new FN_DBHandler(getApplicationContext(),DB_PATH, DB_SETTING);
 
         TextView TxtJudul = (TextView) findViewById(R.id.txtMainMenuUtama);
-        TxtJudul.setText("SYNC");
+        TxtJudul.setText("SINKRON");
 
         TxtUser = (TextView) findViewById(R.id.MainMenu_TxtUser);
         TxtTime = (TextView) findViewById(R.id.MainMenu_TxtTime);
@@ -100,7 +119,13 @@ public class ActivitySync extends ListActivity {
 
         ImgIcon.setImageResource(R.drawable.sfa_sync);
 
-        TxtUser.setText(getPref(TAG_NAMELOGIN));
+        SalesName = getPref(TAG_NAMELOGIN);
+
+        if ((SalesName.length())>20){
+            SalesName = SalesName.substring(0,20);
+        }
+
+        TxtUser.setText(SalesName);
         TxtTime.setText("("+getPref(TAG_LASTLOGIN)+")");
 
         Intent in = getIntent();
@@ -116,7 +141,6 @@ public class ActivitySync extends ListActivity {
 
         dbset.close();
 
-        // Hashmap for ListView
         ArrayList<HashMap<String, String>> OperatorMenuList = new ArrayList<HashMap<String, String>>();
 
         HashMap<String, String> maporder = new HashMap<String, String>();
@@ -134,16 +158,10 @@ public class ActivitySync extends ListActivity {
         mapmanual.put(TAG_ID, "2");
         mapmanual.put(TAG_MENU, "Manual");
 
-
-
         OperatorMenuList.add(maporder);
         OperatorMenuList.add(mapbarang);
         OperatorMenuList.add(mapmanual);
 
-
-        /**
-         * Updating parsed JSON data into ListView
-         * */
         ListAdapter adapter = new AdapterCustomSimple(this, OperatorMenuList,
                 R.layout.l_mainmenu,
                 new String[] { TAG_ICON, TAG_MENU, TAG_ID },
@@ -167,29 +185,31 @@ public class ActivitySync extends ListActivity {
                 String menuid = ((TextView) view.findViewById(R.id.MainMenuID)).getText().toString();
 
                 if(menuid.equals("0")){
-                    ShowKonfirmasiProses("0");
+                    ShowKonfirmasiProsesZip("0");
                 }
 
                 if(menuid.equals("1")){
-                    if (db.getCekExistOrderPelangganNotSync()<=0){
-                        Toast.makeText(getApplicationContext(),"Tidak Ada Order Yang Di Upload",Toast.LENGTH_SHORT).show();
-                    }else {
-                        ShowKonfirmasiProses("1");
+                    if ((db.getCekExistOrderPelangganNotSync()<=0)&&(db.getCekExistCountInventoryPelanggan()<=0)&&(db.getCekExistCountReturPelanggan()<=0)){
+                        Toast.makeText(getApplicationContext(),"Tidak Ada Data Yang Di Upload",Toast.LENGTH_SHORT).show();
+                    }else{
+                        ShowKonfirmasiProsesZip("1");
                     }
                 }
 
                 if(menuid.equals("2")){
-                    if (db.getCekExistOrderPelangganNotSync()<=0){
-                        Toast.makeText(getApplicationContext(),"Tidak Ada Order Yang Di Upload",Toast.LENGTH_SHORT).show();
-                    }else {
-                        ShowKonfirmasiProses("2");
+                    if ((db.getCekExistOrderPelangganNotSync()<=0)&&(db.getCekExistCountInventoryPelanggan()<=0)&&(db.getCekExistCountReturPelanggan()<=0)){
+                        Toast.makeText(getApplicationContext(),"Tidak Ada Data Yang Di Generate",Toast.LENGTH_SHORT).show();
+                    }else{
+                        ShowKonfirmasiProsesZip("2");
                     }
                 }
-
             }
         });
 
         email = getPref(TAG_EMAIL);
+
+        ImgSummary = (ImageView) findViewById(R.id.MainMenu_ImgSummary);
+        ImgSummary.setVisibility(View.GONE);
     }
 
 
@@ -258,7 +278,7 @@ public class ActivitySync extends ListActivity {
 
         @Override
         protected Void doInBackground(Void... arg0) {
-            String url = "http://"+Web+"/pengaturan/generatemaster.php?username="+getPref(TAG_LASTLOGIN)+"&cabang="+getPref(TAG_CABANG)+"&codename=1988";
+            String url = "http://"+Web+"/pengaturan/generatemaster_dev.php?username="+getPref(TAG_LASTLOGIN)+"&cabang="+getPref(TAG_CABANG)+"&codename=1988";
             final FN_JSONParser jParser = new FN_JSONParser();
             String fileName = "MASTER_"+getPref(TAG_LASTLOGIN);
             try {
@@ -277,8 +297,8 @@ public class ActivitySync extends ListActivity {
                         if (Stat.equals("1")){
                             showDialog=2;
                             try {
-                                URL urls = new URL("http://"+Web+"/sqlite/"+fileName);
-                                File file = new File(DB_PATH,fileName);
+                                URL urls = new URL("http://"+Web+"/sqlite/"+fileName+".zip");
+                                File file = new File(DB_PATH,fileName+".zip");
                                 URLConnection uconn = null;
                                 try {
                                     uconn = urls.openConnection();
@@ -294,7 +314,7 @@ public class ActivitySync extends ListActivity {
                                         baf.append((byte) current);
                                     }
 
-                                    FileOutputStream fos = new FileOutputStream( file);
+                                    FileOutputStream fos = new FileOutputStream(file);
                                     fos.write(baf.toByteArray());
                                     fos.flush();
                                     fos.close();
@@ -303,14 +323,18 @@ public class ActivitySync extends ListActivity {
                                         renameOldMaster();
                                     }
 
-                                    if (renameNewMaster(fileName)){
-                                        deleteOldMaster();
-                                        StatusGenerate = "1";
-                                        //db.updateMinOrder(minOrder);
-                                    }else{
-                                        renameNewMaster("MASTER_TMP");
-                                        StatusGenerate = "Gagal Rename File Master";
+                                    //Edit Here
+                                    if(unpackZip(DB_PATH + "/", "MASTER_" + getPref(TAG_LASTLOGIN) + ".zip")){
+                                        if (renameNewMaster(fileName)){
+                                            deleteOldMaster();
+                                            StatusGenerate = "1";
+                                            //db.updateMinOrder(minOrder);
+                                        }else{
+                                            renameNewMaster("MASTER_TMP");
+                                            StatusGenerate = "Gagal Rename File Master";
+                                        }
                                     }
+                                    deleteOldMasterZip();
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                     StatusGenerate = e.getMessage();
@@ -374,6 +398,14 @@ public class ActivitySync extends ListActivity {
         }
         return true;
     }
+    public boolean deleteOldMasterZip(){
+        File file = new File(DB_PATH,"MASTER_"+getPref(TAG_LASTLOGIN)+".zip");
+        if(file.exists()){
+            boolean deleted = file.delete();
+            return deleted;
+        }
+        return true;
+    }
     public boolean cekExistMaster(){
         File file = new File(DB_PATH,"MASTER");
         if(file.exists()){
@@ -397,9 +429,33 @@ public class ActivitySync extends ListActivity {
 
     public boolean renameMasterManual(String filename){
         File from = new File(DB_PATH_CSV_SUCCESS,filename);
-        File to = new File(DB_PATH_CSV_SUCCESS,"OrderEntry_"+getPref(TAG_LASTLOGIN).substring(0,4)+"_"+getToday()+"_"+getPref(TAG_LASTLOGIN)+".csv");
+        File to = new File(DB_PATH_CSV_SUCCESS,"OrderEntry_"+getPref(TAG_LASTLOGIN).substring(0,4)+"_"+getToday()+".csv");
         boolean rename = from.renameTo(to);
-        finalfilename = "OrderEntry_"+getPref(TAG_LASTLOGIN).substring(0,4)+"_"+getToday()+"_"+getPref(TAG_LASTLOGIN)+".csv";
+        finalfilename = "OrderEntry_"+getPref(TAG_LASTLOGIN).substring(0,4)+"_"+getToday()+".csv";
+        return rename;
+    }
+
+    public boolean renameMasterInvManual(String filename){
+        File from = new File(DB_PATH_CSV_SUCCESS,filename);
+        File to = new File(DB_PATH_CSV_SUCCESS,"InvEntry_"+getPref(TAG_LASTLOGIN).substring(0,4)+"_"+getToday()+".csv");
+        boolean rename = from.renameTo(to);
+        finalfilenameinv = "InvEntry_"+getPref(TAG_LASTLOGIN).substring(0,4)+"_"+getToday()+".csv";
+        return rename;
+    }
+
+    public boolean renameMasterReturManual(String filename){
+        File from = new File(DB_PATH_CSV_SUCCESS,filename);
+        File to = new File(DB_PATH_CSV_SUCCESS,"ReturEntry_"+getPref(TAG_LASTLOGIN).substring(0,4)+"_"+getToday()+".csv");
+        boolean rename = from.renameTo(to);
+        finalfilenameretur = "ReturEntry_"+getPref(TAG_LASTLOGIN).substring(0,4)+"_"+getToday()+".csv";
+        return rename;
+    }
+
+    public boolean renameMasterKunjunganManual(String filename){
+        File from = new File(DB_PATH_CSV_SUCCESS,filename);
+        File to = new File(DB_PATH_CSV_SUCCESS,"KunjunganEntry_"+getPref(TAG_LASTLOGIN).substring(0,4)+"_"+getToday()+".csv");
+        boolean rename = from.renameTo(to);
+        finalfilenamekunjungan = "KunjunganEntry_"+getPref(TAG_LASTLOGIN).substring(0,4)+"_"+getToday()+".csv";
         return rename;
     }
 
@@ -439,7 +495,8 @@ public class ActivitySync extends ListActivity {
             fw.append("Keterangan;");
             fw.append("EntryTime;");
             fw.append("Longitude;");
-            fw.append("Latitude");
+            fw.append("Latitude;");
+            fw.append("Seq");
             fw.append('\n');
 
             if (cursor.moveToFirst()) {
@@ -450,7 +507,7 @@ public class ActivitySync extends ListActivity {
                     fw.append(cursor.getString(cursor.getColumnIndex("shipto"))+";");
                     fw.append(cursor.getString(cursor.getColumnIndex("kode"))+";");
                     fw.append(cursor.getString(cursor.getColumnIndex("tgl"))+";");
-                    fw.append(getDateTime("MM/dd/yyyy",0)+";");
+                    fw.append(getDateTime("MM/dd/yyyy", 0)+";");
                     fw.append(cursor.getString(cursor.getColumnIndex("brg"))+";");
                     fw.append(cursor.getString(cursor.getColumnIndex("pcs"))+";");
                     fw.append(cursor.getString(cursor.getColumnIndex("crt"))+";");
@@ -458,14 +515,15 @@ public class ActivitySync extends ListActivity {
                     fw.append(cursor.getString(cursor.getColumnIndex("ket"))+";");
                     fw.append(cursor.getString(cursor.getColumnIndex("entrytime"))+";");
                     fw.append(cursor.getString(cursor.getColumnIndex("longitude"))+";");
-                    fw.append(cursor.getString(cursor.getColumnIndex("latitude"))+"\n");
+                    fw.append(cursor.getString(cursor.getColumnIndex("latitude"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("seq"))+"\n");
                 } while (cursor.moveToNext());
             }
             if (cursor != null && !cursor.isClosed()) {
                 cursor.close();
             }
             fw.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -474,6 +532,274 @@ public class ActivitySync extends ListActivity {
         }
         return true;
     }
+
+    public boolean generateCSVManual(String lastlogin){
+        File SFAdircsv = new File(DB_PATH_CSV_SUCCESS);
+        if(!SFAdircsv.exists()){
+            SFAdircsv.mkdirs();
+        }
+
+        //--------------------delete file 1 minggu
+        SFAdircsv = new File(DB_PATH_CSV_SUCCESS);
+        for (File f : SFAdircsv.listFiles()) {
+            if (f.isFile()){
+                if(f.getName().toString().contains(getDateTime("ddMMyyyy",-7))){
+                    f.delete();
+                }
+            }
+        }
+        filename=lastlogin+"_"+getDateTime("ddMMyyyy_HHmm",0)+".csv";
+
+        //---------------------create file-----------------------------------
+        try {
+            Cursor cursor= db.getAllRawPenjualan();
+
+            FileWriter fw = new FileWriter(DB_PATH_CSV_SUCCESS+"/"+filename);
+            fw.append("DistributorCode;");
+            fw.append("BranchCode;");
+            fw.append("SalesRepCode;");
+            fw.append("RetailerCode;");
+            fw.append("OrderNo;");
+            fw.append("OrderDate;");
+            fw.append("UploadDate;");
+            fw.append("ChildSKUCode;");
+            fw.append("OrderQty;");
+            fw.append("OrderQty(cases);");
+            fw.append("DeliveryDate;");
+            fw.append("Keterangan");
+            fw.append('\n');
+
+            if (cursor.moveToFirst()) {
+                do {
+                    fw.append("DB001;");
+                    fw.append(lastlogin.substring(0, 2)+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("sales"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("shipto"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("kode"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("tgl"))+";");
+                    fw.append(getDateTime("MM/dd/yyyy", 0)+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("brg"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("pcs"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("crt"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("tgl"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("ket"))+"\n");
+                } while (cursor.moveToNext());
+            }
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+            fw.close();
+            //db.close();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            Toast.makeText(getApplicationContext(),"Generate CSV Gagal!!",Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    public boolean generateCSVInv(String lastlogin){
+        File SFAdircsv = new File(DB_PATH_CSV_SUCCESS);
+        if(!SFAdircsv.exists()){
+            SFAdircsv.mkdirs();
+        }
+
+        //--------------------delete file 1 minggu
+        SFAdircsv = new File(DB_PATH_CSV_SUCCESS);
+        for (File f : SFAdircsv.listFiles()) {
+            if (f.isFile()){
+                if(f.getName().toString().contains(getDateTime("ddMMyyyy",-7))){
+                    f.delete();
+                }
+            }
+        }
+        filenameinv=lastlogin+"_"+getDateTime("ddMMyyyy_HHmm",0)+"_Inv.csv";
+
+        //---------------------create file-----------------------------------
+        try {
+            Cursor cursor= db.getAllRawInventory(getToday2());
+
+            FileWriter fw = new FileWriter(DB_PATH_CSV_SUCCESS+"/"+filenameinv);
+            fw.append("SalesRepCode;");
+            fw.append("RetailerCode;");
+            fw.append("InvNo;");
+            fw.append("ProductCode;");
+            fw.append("Stok;");
+            fw.append(getPref(TAG_OPT1)+";");
+            fw.append(getPref(TAG_OPT2)+";");
+            fw.append(getPref(TAG_OPT3)+";");
+            fw.append("CreateDate;");
+            fw.append('\n');
+
+            if (cursor.moveToFirst()) {
+                do {
+                    fw.append(cursor.getString(cursor.getColumnIndex("sales"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("shipto"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("kode"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("brg"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("stok"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("opt1"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("opt2"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("opt3"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("tgl"))+"\n");
+                } while (cursor.moveToNext());
+            }
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+            fw.close();
+            //db.close();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            Toast.makeText(getApplicationContext(),"Generate CSV Inv Gagal!!",Toast.LENGTH_SHORT).show();
+            return false;
+        }finally {
+            db.close();
+        }
+        return true;
+    }
+
+    public boolean generateCSVRetur(String lastlogin){
+        File SFAdircsv = new File(DB_PATH_CSV_SUCCESS);
+        if(!SFAdircsv.exists()){
+            SFAdircsv.mkdirs();
+        }
+
+        //--------------------delete file 1 minggu
+        SFAdircsv = new File(DB_PATH_CSV_SUCCESS);
+        for (File f : SFAdircsv.listFiles()) {
+            if (f.isFile()){
+                if(f.getName().toString().contains(getDateTime("ddMMyyyy",-7))){
+                    f.delete();
+                }
+            }
+        }
+        filenameretur=lastlogin+"_"+getDateTime("ddMMyyyy_HHmm",0)+"_Retur.csv";
+
+        //---------------------create file-----------------------------------
+        try {
+            Cursor cursor= db.getAllRawRetur();
+
+            FileWriter fw = new FileWriter(DB_PATH_CSV_SUCCESS+"/"+filenameretur);
+            fw.append("DistributorCode;");
+            fw.append("BranchCode;");
+            fw.append("SalesRepCode;");
+            fw.append("RetailerCode;");
+            fw.append("ReturNo;");
+            fw.append("ReturDate;");
+            fw.append("UploadDate;");
+            fw.append("ChildSKUCode;");
+            fw.append("OrderQty;");
+            fw.append("OrderQty(cases);");
+            fw.append("Alasan;");
+            fw.append("EntryTime;");
+            fw.append('\n');
+
+            if (cursor.moveToFirst()) {
+                do {
+                    fw.append("DB001;");
+                    fw.append(lastlogin.substring(0, 2)+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("sales"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("shipto"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("kode"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("tgl"))+";");
+                    fw.append(getDateTime("MM/dd/yyyy", 0)+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("brg"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("pcs"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("crt"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("alasan"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("entrytime"))+"\n");
+                } while (cursor.moveToNext());
+            }
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+            fw.close();
+            //db.close();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            Toast.makeText(getApplicationContext(),"Generate CSV Retur Gagal!!",Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    public boolean generateCSVKunjungan(String lastlogin){
+        File SFAdircsv = new File(DB_PATH_CSV_SUCCESS);
+        if(!SFAdircsv.exists()){
+            SFAdircsv.mkdirs();
+        }
+
+        //--------------------delete file 1 minggu
+        SFAdircsv = new File(DB_PATH_CSV_SUCCESS);
+        for (File f : SFAdircsv.listFiles()) {
+            if (f.isFile()){
+                if(f.getName().toString().contains(getDateTime("ddMMyyyy",-7))){
+                    f.delete();
+                }
+            }
+        }
+        filenamekunjungan=lastlogin+"_"+getDateTime("ddMMyyyy_HHmm",0)+"_Kunjungan.csv";
+
+        //---------------------create file-----------------------------------
+        try {
+            Cursor cursor= db.getAllRawKunjungan(getToday2());
+
+            FileWriter fw = new FileWriter(DB_PATH_CSV_SUCCESS+"/"+filenamekunjungan);
+            fw.append("BranchCode;");
+            fw.append("Tgl;");
+            fw.append("SalesRepCode;");
+            fw.append("RetailerCode;");
+            fw.append("Call;");
+            fw.append("PCall;");
+            fw.append("Deviasi;");
+            fw.append("UnCall;");
+            fw.append("Reason;");
+            fw.append("InStore;");
+            fw.append("OutStore;");
+            fw.append("Longitude;");
+            fw.append("Latitude;");
+            fw.append("GPSTime;");
+            fw.append("Reverse;");
+            fw.append('\n');
+
+            if (cursor.moveToFirst()) {
+                do {
+                    fw.append(lastlogin.substring(0, 2)+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("tgl"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("sales"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("shipto"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("call"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("pcall"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("deviasi"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("uncall"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("reason"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("instore"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("outstore"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("longitude"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("latitude"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("gpstime"))+";");
+                    fw.append(cursor.getString(cursor.getColumnIndex("reverse"))+";");
+                    fw.append(""+"\n");
+                } while (cursor.moveToNext());
+            }
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+            fw.close();
+            //db.close();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            Toast.makeText(getApplicationContext(),"Generate CSV Kunjungan Gagal!!",Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
 
     private String getDateTime(String format,int hari) {
         Calendar calendar = Calendar.getInstance();
@@ -573,7 +899,170 @@ public class ActivitySync extends ListActivity {
                 if(serverResponseCode == 200){
                     runOnUiThread(new Runnable() {
                         public void run() {
-                            String urls = "http://"+Web+"/pengaturan/insertorderfile.php?codename=1988&filename="+filename+"&salesman="+getPref(TAG_LASTLOGIN);
+                            String urls = "http://" + Web + "/pengaturan/insertorderfile.php?codename=1988&filename=" + filename + "&salesname=" + getPref(TAG_NAMELOGIN).replaceAll("[^a-zA-Z]+", "_");
+                            final FN_JSONParser jParser = new FN_JSONParser();
+
+                            try {
+                                JSONObject json = jParser.getJSONFromUrl(urls);
+                                StatusRequest = json.getString("STATUS");
+
+                                if (StatusRequest.equals("1")) {
+                                    UploadInfoArray = json.getJSONArray("uploaddata");
+
+                                    String Stat = "0";
+
+                                    for (int i = 0; i < UploadInfoArray.length(); i++) {
+                                        JSONObject a = UploadInfoArray.getJSONObject(i);
+                                        Stat = a.getString("status");
+                                    }
+
+                                    if (Stat.equals("1")) {
+                                        FilePathInv = DB_PATH_CSV_SUCCESS + "/" + filenameinv;
+                                        dialog = ProgressDialog.show(ActivitySync.this, "", "Uploading file Inventory...", true);
+                                            new Thread(new Runnable() {
+                                                public void run() {
+                                                    uploadFileInv(FilePathInv, filenameinv);
+                                                }
+                                            }).start();
+                                        db.updateFlagOrder();
+                                        //Toast.makeText(ActivitySync.this, "Unggah Data Berhasil.", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(ActivitySync.this, "Unggah Data Gagal 3." + " - " + UploadInfoArray.toString(), Toast.LENGTH_SHORT).show();
+                                    }
+                                } else {
+                                    Toast.makeText(ActivitySync.this, "Unggah Data Gagal 2." + " - " + UploadInfoArray.toString(), Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException e) {
+                                Toast.makeText(ActivitySync.this, "Unggah Data Gagal. 1", Toast.LENGTH_SHORT).show();
+                                Log.e("123", e.getMessage());
+                            }
+
+                        }
+                    });
+                }
+
+                //close the streams //
+                fileInputStream.close();
+                dos.flush();
+                dos.close();
+
+            } catch (MalformedURLException ex) {
+
+                dialog.dismiss();
+                ex.printStackTrace();
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(ActivitySync.this, "MalformedURLException", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                Log.e("Upload file to server", "error: " + ex.getMessage(), ex);
+            } catch (Exception e) {
+
+                dialog.dismiss();
+                e.printStackTrace();
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(ActivitySync.this, "Got Exception : see logcat ", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                Log.e("Upload file to server", "Exception : "  + e.getMessage(), e);
+            }
+            dialog.dismiss();
+            return serverResponseCode;
+
+        } // End else block
+    }
+
+    public int uploadFileInv(String sourceFileUri,final String filename) {
+
+        String fileName = sourceFileUri;
+
+        HttpURLConnection conn = null;
+        DataOutputStream dos = null;
+        String lineEnd = "\r\n";
+        String twoHyphens = "--";
+        String boundary = "*****";
+        int bytesRead, bytesAvailable, bufferSize;
+        byte[] buffer;
+        int maxBufferSize = 1 * 1024 * 1024;
+        File sourceFile = new File(sourceFileUri);
+
+        if (!sourceFile.isFile()) {
+
+            dialog.dismiss();
+            Log.e("uploadFile", "Source File not exist :" + FilePathInv);
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(ActivitySync.this, "File Tidak Ditemukan " + FilePathInv, Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            return 0;
+
+        }
+        else
+        {
+            try {
+
+                // open a URL connection to the Servlet
+                FileInputStream fileInputStream = new FileInputStream(sourceFile);
+                URL url = new URL(upLoadServerUri);
+
+                // Open a HTTP  connection to  the URL
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setDoInput(true); // Allow Inputs
+                conn.setDoOutput(true); // Allow Outputs
+                conn.setUseCaches(false); // Don't use a Cached Copy
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Connection", "Keep-Alive");
+                conn.setRequestProperty("ENCTYPE", "multipart/form-data");
+                conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+                conn.setRequestProperty("uploaded_file", fileName);
+
+                dos = new DataOutputStream(conn.getOutputStream());
+
+                dos.writeBytes(twoHyphens + boundary + lineEnd);
+                dos.writeBytes("Content-Disposition: form-data; name=\"uploaded_file\";filename=\""
+                        + fileName + "\"" + lineEnd);
+
+                dos.writeBytes(lineEnd);
+
+                // create a buffer of  maximum size
+                bytesAvailable = fileInputStream.available();
+
+                bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                buffer = new byte[bufferSize];
+
+                // read file and write it into form...
+                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+                while (bytesRead > 0) {
+
+                    dos.write(buffer, 0, bufferSize);
+                    bytesAvailable = fileInputStream.available();
+                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+                }
+
+                // send multipart form data necesssary after file data...
+                dos.writeBytes(lineEnd);
+                dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+                // Responses from the server (code and message)
+                serverResponseCode = conn.getResponseCode();
+                String serverResponseMessage = conn.getResponseMessage();
+
+                Log.i("uploadFile", "HTTP Response is : "
+                        + serverResponseMessage + ": " + serverResponseCode);
+
+                if(serverResponseCode == 200){
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            String urls = "http://"+Web+"/pengaturan/insertinvfile.php?codename=1988&filename="+filename+"&salesname="+getPref(TAG_NAMELOGIN).replaceAll("[^a-zA-Z]+","_");
                             final FN_JSONParser jParser = new FN_JSONParser();
 
                             try {
@@ -591,16 +1080,16 @@ public class ActivitySync extends ListActivity {
                                     }
 
                                     if(Stat.equals("1")){
-                                        db.updateFlagOrder();
                                         Toast.makeText(ActivitySync.this, "Unggah Data Berhasil.", Toast.LENGTH_SHORT).show();
+                                        db.updateFlagInventory();
                                     }else{
-                                        Toast.makeText(ActivitySync.this, "Unggah Data Gagal 3."+" - "+UploadInfoArray.toString(), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ActivitySync.this, "Unggah Data Gagal 3 : Inv."+" - "+UploadInfoArray.toString(), Toast.LENGTH_SHORT).show();
                                     }
                                 }else{
-                                    Toast.makeText(ActivitySync.this, "Unggah Data Gagal 2."+" - "+UploadInfoArray.toString(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(ActivitySync.this, "Unggah Data Gagal 2 : Inv."+" - "+UploadInfoArray.toString(), Toast.LENGTH_SHORT).show();
                                 }
                             } catch (JSONException e) {
-                                Toast.makeText(ActivitySync.this, "Unggah Data Gagal. 1", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ActivitySync.this, "Unggah Data Gagal. 1 : Inv", Toast.LENGTH_SHORT).show();
                                 Log.e("123",e.getMessage());
                             }
 
@@ -635,7 +1124,7 @@ public class ActivitySync extends ListActivity {
                         Toast.makeText(ActivitySync.this, "Got Exception : see logcat ", Toast.LENGTH_SHORT).show();
                     }
                 });
-                Log.e("Upload file to server Exception", "Exception : "  + e.getMessage(), e);
+                Log.e("Upload file to server", "Exception : "  + e.getMessage(), e);
             }
             dialog.dismiss();
             return serverResponseCode;
@@ -643,7 +1132,95 @@ public class ActivitySync extends ListActivity {
         } // End else block
     }
 
-    public void ShowKonfirmasiProses(final String command){
+    public void ShowDialogOption(final String command){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Konfirmasi Pilihan Proses");
+        builder.setIcon(R.drawable.dfa_info_ups);
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(20, 15, 30, 15);
+
+        final TextView TxtLblNama = new TextView(this);
+        TxtLblNama.setText("Pilih data yang akan diproses?");
+
+        TxtLblNama.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+
+        DecimalFormatSymbols symbol = new DecimalFormatSymbols(Locale.GERMANY);
+        symbol.setCurrencySymbol("");
+        DecimalFormat formatter = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.GERMANY);
+        formatter.setDecimalFormatSymbols(symbol);
+
+        final TextView TxtLblPilihan = new TextView(this);
+        TxtLblPilihan.setText("Pilihan data : ");
+
+        String[] arrData = new String[2];
+        arrData[0] = "Order + Inventory";
+        arrData[1] = "Inventory";
+        final Spinner SpnData = new Spinner(this);
+
+        ArrayAdapter Adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, arrData);
+        Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        SpnData.setAdapter(Adapter);
+
+        layout.addView(TxtLblNama,params);
+        layout.addView(SpnData,params);
+
+
+        builder.setView(layout);
+
+        // Set up the buttons
+        builder.setPositiveButton("Proses", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialoge, int which) {
+                dialoge.dismiss();
+                if(command.equals("1")){
+                    if(SpnData.getSelectedItemPosition()==0){
+                        if (db.getCekExistOrderPelangganNotSync()<=0){
+                            Toast.makeText(getApplicationContext(),"Tidak Ada Order Yang Di Upload",Toast.LENGTH_SHORT).show();
+                        }else {
+                            ShowKonfirmasiProses("1","0");
+                        }
+                    }else{
+                        if(db.getCekExistCountInventoryPelanggan()<=0){
+                            Toast.makeText(getApplicationContext(),"Tidak Ada Inventory Yang Di Upload",Toast.LENGTH_SHORT).show();
+                        }else{
+                            ShowKonfirmasiProses("1","1");
+                        }
+                    }
+                }else {
+                    if(SpnData.getSelectedItemPosition()==0){
+                        if (db.getCekExistOrderPelangganNotSync()<=0){
+                            Toast.makeText(getApplicationContext(),"Tidak Ada Order Yang Di Upload",Toast.LENGTH_SHORT).show();
+                        }else {
+                            ShowKonfirmasiProses("2","0");
+                        }
+                    }else{
+                        if(db.getCekExistCountInventoryPelanggan()<=0){
+                            Toast.makeText(getApplicationContext(),"Tidak Ada Inventory Yang Di Upload",Toast.LENGTH_SHORT).show();
+                        }else {
+                            ShowKonfirmasiProses("2", "1");
+                        }
+                    }
+                }
+            }
+        });
+
+        // Set up the buttons
+        builder.setNegativeButton("Tidak", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialoge, int which) {
+                dialoge.dismiss();
+            }
+        });
+
+        builder.show();
+    }
+
+    public void ShowKonfirmasiProses(final String command,final String uploadonlyinv){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Konfirmasi Proses");
         builder.setIcon(R.drawable.dfa_info_ups);
@@ -684,19 +1261,38 @@ public class ActivitySync extends ListActivity {
                     new UpdateMaster(ActivitySync.this).execute();
                 }else if (command.equals("1")){
                     generateCSV(getPref(TAG_LASTLOGIN));
-                    FilePath = DB_PATH_CSV_SUCCESS+"/"+filename;
-                    dialog = ProgressDialog.show(ActivitySync.this, "", "Uploading file...", true);
-                    new Thread(new Runnable() {
-                        public void run() {
-                            uploadFile(FilePath,filename);
-                        }
-                    }).start();
+                    generateCSVInv(getPref(TAG_LASTLOGIN));
+                    if (uploadonlyinv.equals("1")){
+                        FilePathInv = DB_PATH_CSV_SUCCESS+"/"+filenameinv;
+                        dialog = ProgressDialog.show(ActivitySync.this, "", "Uploading file Inventory...", true);
+                        new Thread(new Runnable() {
+                            public void run() {
+                                uploadFileInv(FilePathInv,filenameinv);
+                            }
+                        }).start();
+                    }else{
+                        FilePath = DB_PATH_CSV_SUCCESS+"/"+filename;
+                        dialog = ProgressDialog.show(ActivitySync.this, "", "Uploading file Order...", true);
+                        new Thread(new Runnable() {
+                            public void run() {
+                                uploadFile(FilePath,filename);
+                            }
+                        }).start();
+                    }
                 }else{
-                    generateCSV(getPref(TAG_LASTLOGIN));
-                    renameMasterManual(filename);
+                    if (uploadonlyinv.equals("1")){
+                        generateCSVInv(getPref(TAG_LASTLOGIN));
+                        renameMasterInvManual(filenameinv);
+                    }else{
+                        generateCSV(getPref(TAG_LASTLOGIN));
+                        renameMasterManual(filename);
+
+                        generateCSVInv(getPref(TAG_LASTLOGIN));
+                        renameMasterInvManual(filenameinv);
+                    }
 
                     subject = "SFA ORDER MANUAL";
-                    message = "SFA ORDER MANUAL - "+getPref(TAG_LASTLOGIN)+"  - "+getToday();
+                    message = "SFA ORDER MANUAL - "+getPref(TAG_LASTLOGIN) + " - " + getPref(TAG_NAMELOGIN).replaceAll("[^a-zA-Z]+", "_") +" - " + getToday();
                     sendMail(email, subject, message);
                 }
             }
@@ -716,6 +1312,13 @@ public class ActivitySync extends ListActivity {
     public String getToday(){
         Calendar c = Calendar.getInstance();
         SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd_HHmm");
+        String formattedDate = df.format(c.getTime());
+        return  formattedDate;
+    }
+
+    public String getToday2(){
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         String formattedDate = df.format(c.getTime());
         return  formattedDate;
     }
@@ -748,12 +1351,36 @@ public class ActivitySync extends ListActivity {
         mp.addBodyPart(htmlPart);
 
         File gpxfile = new File(DB_PATH_CSV_SUCCESS, finalfilename);
-
         MimeBodyPart messageBodyPart = new MimeBodyPart();
         FileDataSource fileDataSource =new FileDataSource(gpxfile);
         messageBodyPart.setDataHandler(new DataHandler(fileDataSource));
         messageBodyPart.setFileName(gpxfile.getName());
+
         mp.addBodyPart(messageBodyPart);
+
+        File gpxfile2 = new File(DB_PATH_CSV_SUCCESS, finalfilenameinv);
+        MimeBodyPart messageBodyPart2 = new MimeBodyPart();
+        FileDataSource fileDataSource2 =new FileDataSource(gpxfile2);
+        messageBodyPart2.setDataHandler(new DataHandler(fileDataSource2));
+        messageBodyPart2.setFileName(gpxfile2.getName());
+
+        mp.addBodyPart(messageBodyPart2);
+
+        File gpxfile3 = new File(DB_PATH_CSV_SUCCESS, finalfilenameretur);
+        MimeBodyPart messageBodyPart3 = new MimeBodyPart();
+        FileDataSource fileDataSource3 =new FileDataSource(gpxfile3);
+        messageBodyPart3.setDataHandler(new DataHandler(fileDataSource3));
+        messageBodyPart3.setFileName(gpxfile3.getName());
+
+        mp.addBodyPart(messageBodyPart3);
+
+        File gpxfile4 = new File(DB_PATH_CSV_SUCCESS, finalfilenamekunjungan);
+        MimeBodyPart messageBodyPart4 = new MimeBodyPart();
+        FileDataSource fileDataSource4 =new FileDataSource(gpxfile4);
+        messageBodyPart4.setDataHandler(new DataHandler(fileDataSource4));
+        messageBodyPart4.setFileName(gpxfile4.getName());
+
+        mp.addBodyPart(messageBodyPart4);
 
         message.setContent(mp);
         return message;
@@ -790,6 +1417,9 @@ public class ActivitySync extends ListActivity {
             if(Done==1){
                 Toast.makeText(ActivitySync.this,"Berhasil Mengirim Email ke "+email,Toast.LENGTH_SHORT).show();
                 db.updateFlagOrder();
+                db.updateFlagInventory();
+                db.updateFlagRetur();
+                dbset.UpdateSettingTglLogin();
             }else{
                 Toast.makeText(ActivitySync.this,"Gagal Mengirim Email",Toast.LENGTH_SHORT).show();
             }
@@ -806,6 +1436,341 @@ public class ActivitySync extends ListActivity {
             }
             return null;
         }
+    }
+
+    //Unzip File
+    private boolean unpackZip(String path, String zipname){
+        InputStream is;
+        ZipInputStream zis;
+        try
+        {
+            String filename;
+            is = new FileInputStream(path + zipname);
+            zis = new ZipInputStream(new BufferedInputStream(is));
+            ZipEntry ze;
+            byte[] buffer = new byte[1024];
+            int count;
+
+            while ((ze = zis.getNextEntry()) != null)
+            {
+                filename = ze.getName();
+
+                // Need to create directories if not exists, or
+                // it will generate an Exception...
+                if (ze.isDirectory()) {
+                    File fmd = new File(path + filename);
+                    fmd.mkdirs();
+                    continue;
+                }
+
+                FileOutputStream fout = new FileOutputStream(path + filename);
+
+                // cteni zipu a zapis
+                while ((count = zis.read(buffer)) != -1)
+                {
+                    fout.write(buffer, 0, count);
+                }
+
+                fout.close();
+                zis.closeEntry();
+            }
+
+            zis.close();
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    public void packZip(String[] _files, String zipFileName) {
+        try {
+            BufferedInputStream origin = null;
+            FileOutputStream dest = new FileOutputStream(zipFileName);
+            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(
+                    dest));
+            byte data[] = new byte[1024 * 1024];
+
+            for (int i = 0; i < _files.length; i++) {
+                Log.v("Compress", "Adding: " + _files[i]);
+                FileInputStream fi = new FileInputStream(_files[i]);
+                origin = new BufferedInputStream(fi, 1024 * 1024);
+
+                ZipEntry entry = new ZipEntry(_files[i].substring(_files[i].lastIndexOf("/") + 1));
+                out.putNextEntry(entry);
+                int count;
+
+                while ((count = origin.read(data, 0, 1024 * 1024)) != -1) {
+                    out.write(data, 0, count);
+                }
+                origin.close();
+            }
+
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int uploadFileZip(String sourceFileUri,final String filezip,final String filename,final String filenameinv, final String filenameretur, final String filenamekunjungans) {
+
+        String fileName = sourceFileUri;
+
+        HttpURLConnection conn = null;
+        DataOutputStream dos = null;
+        String lineEnd = "\r\n";
+        String twoHyphens = "--";
+        String boundary = "*****";
+        int bytesRead, bytesAvailable, bufferSize;
+        byte[] buffer;
+        int maxBufferSize = 50 * 1024 * 1024;
+        File sourceFile = new File(sourceFileUri);
+
+        if (!sourceFile.isFile()) {
+
+            dialog.dismiss();
+            Log.e("uploadFile", "Source File not exist :" + filezip);
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(ActivitySync.this, "File Tidak Ditemukan " + filezip, Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            return 0;
+
+        }
+        else
+        {
+            try {
+
+                // open a URL connection to the Servlet
+                FileInputStream fileInputStream = new FileInputStream(sourceFile);
+                URL url = new URL(upLoadServerUri);
+
+                // Open a HTTP  connection to  the URL
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setDoInput(true); // Allow Inputs
+                conn.setDoOutput(true); // Allow Outputs
+                conn.setUseCaches(false); // Don't use a Cached Copy
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Connection", "Keep-Alive");
+                conn.setRequestProperty("ENCTYPE", "multipart/form-data");
+                conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+                conn.setRequestProperty("uploaded_file", fileName);
+
+                dos = new DataOutputStream(conn.getOutputStream());
+
+                dos.writeBytes(twoHyphens + boundary + lineEnd);
+                dos.writeBytes("Content-Disposition: form-data; name=\"uploaded_file\";filename=\""
+                        + fileName + "\"" + lineEnd);
+
+                dos.writeBytes(lineEnd);
+
+                // create a buffer of  maximum size
+                bytesAvailable = fileInputStream.available();
+
+                bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                buffer = new byte[bufferSize];
+
+                // read file and write it into form...
+                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+                while (bytesRead > 0) {
+
+                    dos.write(buffer, 0, bufferSize);
+                    bytesAvailable = fileInputStream.available();
+                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+                }
+
+                // send multipart form data necesssary after file data...
+                dos.writeBytes(lineEnd);
+                dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+                // Responses from the server (code and message)
+                serverResponseCode = conn.getResponseCode();
+                String serverResponseMessage = conn.getResponseMessage();
+
+                Log.i("uploadFile", "HTTP Response is : "
+                        + serverResponseMessage + ": " + serverResponseCode);
+
+                if(serverResponseCode == 200){
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            String urls = "http://"+Web+"/pengaturan/insertzipfilev025.php?codename=1988&filezip="+filezip+"&filename="+filename+"&filenameinv="+filenameinv+"&filenameretur="+filenameretur+"&filenamekunjungan="+filenamekunjungans+"&salesname="+getPref(TAG_NAMELOGIN).replaceAll("[^a-zA-Z]+","_");
+                            final FN_JSONParser jParser = new FN_JSONParser();
+
+                            try {
+                                JSONObject json = jParser.getJSONFromUrl(urls);
+                                StatusRequest = json.getString("STATUS");
+
+                                if(StatusRequest.equals("1")){
+                                    UploadInfoArray = json.getJSONArray("uploaddata");
+
+                                    String Stat = "0";
+
+                                    for (int i=0;i<UploadInfoArray.length();i++){
+                                        JSONObject a = UploadInfoArray.getJSONObject(i);
+                                        Stat = a.getString("status");
+                                    }
+
+                                    if(Stat.equals("1")){
+                                        db.updateFlagOrder();
+                                        db.updateFlagInventory();
+                                        db.updateFlagRetur();
+                                        dbset.UpdateSettingTglLogin();
+                                        Toast.makeText(ActivitySync.this, "Unggah Data Zip Berhasil.", Toast.LENGTH_SHORT).show();
+                                    }else{
+                                        Toast.makeText(ActivitySync.this, "Unggah Data Zip Gagal 3 : Zip."+" - "+UploadInfoArray.toString(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }else{
+                                    Toast.makeText(ActivitySync.this, "Unggah Data Gagal 2 : Zip."+" - "+UploadInfoArray.toString(), Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException e) {
+                                Toast.makeText(ActivitySync.this, "Unggah Data Gagal. 1 : Zip", Toast.LENGTH_SHORT).show();
+                                Log.e("123",e.getMessage());
+                            }
+
+                        }
+                    });
+                }
+
+                //close the streams //
+                fileInputStream.close();
+                dos.flush();
+                dos.close();
+
+            } catch (MalformedURLException ex) {
+
+                dialog.dismiss();
+                ex.printStackTrace();
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(ActivitySync.this, "MalformedURLException", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                Log.e("Upload file to server", "error: " + ex.getMessage(), ex);
+            } catch (Exception e) {
+
+                dialog.dismiss();
+                e.printStackTrace();
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(ActivitySync.this, "Got Exception : see logcat ", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                Log.e("Upload file to server", "Exception : "  + e.getMessage(), e);
+            }
+            dialog.dismiss();
+            return serverResponseCode;
+
+        } // End else block
+    }
+
+
+    public void ShowKonfirmasiProsesZip(final String command){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Konfirmasi Proses");
+        builder.setIcon(R.drawable.dfa_info_ups);
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(20, 15, 30, 15);
+
+        final TextView TxtLblNama = new TextView(this);
+        if (command.equals("0")){
+            TxtLblNama.setText("Apakah anda yakin ingin mengunduh master yang baru?");
+        }else if(command.equals("1")){
+            TxtLblNama.setText("Apakah anda yakin ingin mengunggah?");
+        }else{
+            TxtLblNama.setText("Apakah anda yakin memproses manual?");
+        }
+        TxtLblNama.setTextSize(TypedValue.COMPLEX_UNIT_SP,16);
+
+        DecimalFormatSymbols symbol = new DecimalFormatSymbols(Locale.GERMANY);
+        symbol.setCurrencySymbol("");
+        DecimalFormat formatter = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.GERMANY);
+        formatter.setDecimalFormatSymbols(symbol);
+
+
+        layout.addView(TxtLblNama,params);
+
+
+        builder.setView(layout);
+
+        // Set up the buttons
+        builder.setPositiveButton("Ya", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialoge, int which) {
+                dialoge.dismiss();
+                if(command.equals("0")){
+                    new UpdateMaster(ActivitySync.this).execute();
+                }else if (command.equals("1")){
+                    // New
+                    generateCSV(getPref(TAG_LASTLOGIN));
+                    generateCSVInv(getPref(TAG_LASTLOGIN));
+                    generateCSVRetur(getPref(TAG_LASTLOGIN));
+                    generateCSVKunjungan(getPref(TAG_LASTLOGIN));
+                    FilePathInv = DB_PATH_CSV_SUCCESS+"/"+filenameinv;
+                    FilePathRetur = DB_PATH_CSV_SUCCESS+"/"+filenameretur;
+                    FilePathKunjungan = DB_PATH_CSV_SUCCESS+"/"+filenamekunjungan;
+                    FilePath = DB_PATH_CSV_SUCCESS+"/"+filename;
+                    FilePathZip = DB_PATH_CSV_SUCCESS+"/"+"ORDER_"+getPref(TAG_LASTLOGIN)+".zip";
+
+                    String[] s = new String[4];
+                    s[0] = FilePath;
+                    s[1] = FilePathInv;
+                    s[2] = FilePathRetur;
+                    s[3] = FilePathKunjungan;
+
+                    packZip(s,FilePathZip);
+                    dialog = ProgressDialog.show(ActivitySync.this, "", "Uploading file Zip...", true);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            uploadFileZip(FilePathZip,"ORDER_"+getPref(TAG_LASTLOGIN)+".zip",filename,filenameinv,filenameretur,filenamekunjungan);
+                        }
+                    }).start();
+
+                }else{
+                    generateCSVManual(getPref(TAG_LASTLOGIN));
+                    renameMasterManual(filename);
+
+                    generateCSVInv(getPref(TAG_LASTLOGIN));
+                    renameMasterInvManual(filenameinv);
+
+                    generateCSVRetur(getPref(TAG_LASTLOGIN));
+                    renameMasterReturManual(filenameretur);
+
+                    generateCSVKunjungan(getPref(TAG_LASTLOGIN));
+                    renameMasterKunjunganManual(filenamekunjungan);
+
+
+                    subject = "SFA ORDER MANUAL";
+                    message = "SFA ORDER MANUAL - "+getPref(TAG_LASTLOGIN) + " - " + getPref(TAG_NAMELOGIN).replaceAll("[^a-zA-Z]+", "_") +" - " + getToday();
+                    sendMail(email, subject, message);
+                }
+            }
+        });
+
+        // Set up the buttons
+        builder.setNegativeButton("Tidak", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialoge, int which) {
+                dialoge.dismiss();
+            }
+        });
+
+        builder.show();
     }
 }
 

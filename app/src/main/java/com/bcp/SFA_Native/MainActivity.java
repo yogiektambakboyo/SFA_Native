@@ -3,35 +3,54 @@ package com.bcp.SFA_Native;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.*;
+import android.provider.Settings;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
 import android.view.*;
 import android.webkit.WebView;
 import android.widget.*;
+
+import com.andexert.library.RippleView;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
+import com.nineoldandroids.animation.Animator;
+import com.wrapp.floatlabelededittext.FloatLabeledEditText;
+
 import org.apache.http.util.ByteArrayBuffer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.lang.Process;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class MainActivity extends Activity {
-    /**
-     * Called when the activity is first created.
-     */
     private FN_DBHandler db,dbmst;
     private String      DB_PATH= Environment.getExternalStorageDirectory()+"/SFA";
     private String      DB_SETTING="SETTING";
@@ -50,35 +69,110 @@ public class MainActivity extends Activity {
     private final String TAG_CABANG = "cabang";
     private final String TAG_LOGIN = "logindata";
     private final String TAG_NAMA = "nama";
+    private final String TAG_TGLLOGIN = "tgllogin";
     private final String TAG_SETTINGSTATUS="SETSTATUS";
-
+    private final String TAG_DEVICEID = "DeviceID";
 
     JSONArray LoginArray = null,GenerateArray = null;
 
-    //Form
     EditText InputUsername,InputPassword;
     CheckBox CheckUpdate;
     Button BtnSubmit;
-    int status;
+    TextView TxtVersion,TxtUmpan,TxtUmpan2;
+    ImageView ImgLogo,ImgLogoUser,ImgLogoPassword;
+    int status,hitupdate;
 
     private String UserInput="";
-    private String Web,AppVersion,DBVersion,LastLogin,NameLogin,ModeApp,Cabang,MinOrder,Email;
+    private String Web,AppVersion,DBVersion,LastLogin,NameLogin,ModeApp,Cabang,MinOrder,Email,TglLogin="",VersionAPK="",DeviceID="";
 
+    boolean animate = true;
+
+    Intent ServiceInt,ServiceIntFused;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.p_main);
+        animate = true;
 
+        hitupdate = 0;
+
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+
+        try {
+            int isAutoDate = 0;
+            int isAutoZonaTime = 0;
+            int isAirPlaneMode = 0;
+            isAutoDate = Settings.System.getInt(getContentResolver(),Settings.Global.AUTO_TIME);
+            isAutoZonaTime = Settings.System.getInt(getContentResolver(),Settings.Global.AUTO_TIME_ZONE);
+            isAirPlaneMode = Settings.System.getInt(getContentResolver(),Settings.Global.AIRPLANE_MODE_ON);
+            if ((isAutoDate == 0)||(isAutoZonaTime == 0)||(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)||(checkMockLocation()))||(isAirPlaneMode == 1)||(!isMobileDataEnabled())){
+                String Msg = "Tanggal di perangkat tidak tersetting automatic, silahkan centang auto datetime time di setting?";
+                if (isAutoDate==0){
+                    Msg = "Tanggal di perangkat tidak tersetting automatic, silahkan centang auto datetime time di setting?";
+                }else if (isAutoZonaTime==0){
+                    Msg = "Zona waktu di perangkat tidak tersetting automatic, silahkan centang auto zona waktu di setting?";
+                }else if(checkMockLocation()){
+                    Msg = "Setting Mock Location aktif, silahkan non aktifkan dahulu!!!";
+                }else if(isAirPlaneMode == 1){
+                    Msg = "Setting Air plane mode aktif, silahkan non aktifkan dahulu!!!";
+                }else if(!isMobileDataEnabled()){
+                    Msg = "Setting mobile data tidak aktif, silahkan aktifkan dahulu!!!";
+                }else{
+                    Msg = "GPS tidak aktif, silahkan aktifkan dahulu di setting?";
+                }
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Information")
+                        .setMessage(Msg)
+                        .setPositiveButton("Setelan", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
+                                MainActivity.this.finish();
+                            }
+                        })
+                        .setCancelable(false)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        if (getPref(TAG_DEVICEID).length()>3){
+            DeviceID = getPref(TAG_DEVICEID);
+        }
+
+        // 0(Stable Version n Update Konsep).1(Mayor Update Table/Data).0(Minor Update)
+        VersionAPK = "0.2.6";
+        TxtVersion = (TextView) findViewById(R.id.MainMenu_TxtVersion);
+        TxtVersion.setText("Versi Aplikasi : " + VersionAPK);
+        TxtVersion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (hitupdate == 5) {
+                    hitupdate = 0;
+                    DialodCekUpdate();
+                } else {
+                    hitupdate++;
+                }
+            }
+        });
 
         getActionBar().setDisplayShowTitleEnabled(false);
         getActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#3399FF")));
 
-        Intent ServiceInt  = new Intent(this, ServiceLocation.class);
+        ServiceInt  = new Intent(this, ServiceLocation.class);
         startService(ServiceInt);
 
+        ServiceIntFused = new Intent(this, ServiceLocationGFused.class);
+        startService(ServiceIntFused);
+
         InputUsername = (EditText) findViewById(R.id.Login_InputUsername);
+        InputUsername.setVisibility(View.INVISIBLE);
         InputPassword = (EditText) findViewById(R.id.Login_InputPassword);
+        InputPassword.setVisibility(View.INVISIBLE);
         CheckUpdate = (CheckBox) findViewById(R.id.MainMenu_CBUpdate);
+        CheckUpdate.setVisibility(View.INVISIBLE);
 
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -86,28 +180,46 @@ public class MainActivity extends Activity {
         }
 
         BtnSubmit = (Button) findViewById(R.id.Login_BtnSubmit);
+        BtnSubmit.setVisibility(View.INVISIBLE);
+
+        final RippleView rippleView = (RippleView) findViewById(R.id.RpViewBtn);
 
         BtnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if((InputUsername.getText().toString().equals(InputPassword.getText().toString()))&&((InputUsername.getText().length())>0)){
-                    UserInput=InputUsername.getText().toString();
-                    if(CheckUpdate.isChecked()){
-                        new CekLogin(MainActivity.this).execute();
-                    }else{
-                        if(InputUsername.getText().toString().equals(LastLogin)){
-                            setPrefLogin(InputUsername.getText().toString(),NameLogin,MinOrder);
-                            Intent in = new Intent(getApplicationContext(), ActivityMainMenu.class);
-                            in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            in.putExtra(TAG_WEB,Web);
-                            startActivity(in);
+                rippleView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
+                    @Override
+                    public void onComplete(RippleView rippleView) {
+                        if((InputUsername.getText().toString().equals(InputPassword.getText().toString()))&&((InputUsername.getText().length())>0)){
+                            UserInput=InputUsername.getText().toString();
+                            if (TglLogin.length()<=0){
+                                CheckUpdate.setChecked(true);
+                            }
+                            if(CheckUpdate.isChecked()){
+                                new CekLogin(MainActivity.this).execute();
+                            }else{
+                                if (getDateDiff(getToday2(),TglLogin.replaceAll("-",""),TimeUnit.DAYS)<0){
+                                    Toast.makeText(MainActivity.this, "Tgl di Device anda tidak uptodate, Silahkan cek pengaturan tgl anda!!!", Toast.LENGTH_SHORT).show();
+                                }else if(getDateDiff(getToday2(),TglLogin.replaceAll("-",""),TimeUnit.DAYS)>6){
+                                    Toast.makeText(MainActivity.this, "Silahkan centang update master untuk memperbarui data!!!", Toast.LENGTH_SHORT).show();
+                                }else {
+                                    if(InputUsername.getText().toString().equals(LastLogin)){
+                                        setPrefLogin(InputUsername.getText().toString(),NameLogin,MinOrder);
+                                        Intent in = new Intent(getApplicationContext(), ActivityMainMenu.class);
+                                        in.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        in.putExtra(TAG_WEB,Web);
+                                        startActivity(in);
+                                    }else{
+                                        Toast.makeText(getApplicationContext(),"Username/Password Salah!!",Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            }
                         }else{
                             Toast.makeText(getApplicationContext(),"Username/Password Salah!!",Toast.LENGTH_SHORT).show();
                         }
                     }
-                }else{
-                    Toast.makeText(getApplicationContext(),"Username/Password Salah!!",Toast.LENGTH_SHORT).show();
-                }
+
+                });
             }
         });
 
@@ -137,6 +249,7 @@ public class MainActivity extends Activity {
                 Cabang = MenuJSON.getString(TAG_CABANG);
                 MinOrder = MenuJSON.getString(TAG_MINORDER);
                 Email = MenuJSON.getString(TAG_EMAIL);
+                TglLogin = MenuJSON.getString(TAG_TGLLOGIN);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -154,8 +267,201 @@ public class MainActivity extends Activity {
         db.close();
         dbmst.close();
 
-        setPref(Web,AppVersion,DBVersion,Email);
+        setPref(Web, AppVersion, DBVersion, Email);
 
+        ImgLogo = (ImageView) findViewById(R.id.Login_Icon);
+        ImgLogoUser = (ImageView) findViewById(R.id.Login_IconUser);
+        ImgLogoPassword = (ImageView) findViewById(R.id.Login_IconPassword);
+
+
+        TxtUmpan = (TextView) findViewById(R.id.LoginUmpan);
+        TxtUmpan.setVisibility(View.GONE);
+        TxtUmpan2 = (TextView) findViewById(R.id.LoginUmpan2);
+        TxtUmpan2.setVisibility(View.GONE);
+    }
+
+    public boolean checkMockLocation(){
+        if (Settings.Secure.getString(getContentResolver(),
+                Settings.Secure.ALLOW_MOCK_LOCATION).equals("0"))
+            return false;
+        else return true;
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if((hasFocus)&&(animate)){
+            InputUsername.setVisibility(View.INVISIBLE);
+            InputPassword.setVisibility(View.INVISIBLE);
+            ImgLogoUser.setVisibility(View.INVISIBLE);
+            ImgLogoPassword.setVisibility(View.INVISIBLE);
+            CheckUpdate.setVisibility(View.INVISIBLE);
+            BtnSubmit.setVisibility(View.INVISIBLE);
+            TxtVersion.setVisibility(View.INVISIBLE);
+            YoYo.with(Techniques.BounceIn).duration(1200).playOn(ImgLogo);
+            YoYo.with(Techniques.FadeOut).withListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    YoYo.with(Techniques.SlideInRight).duration(800).withListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                            InputUsername.setVisibility(View.VISIBLE);
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            ImgLogoUser.setVisibility(View.VISIBLE);
+                            YoYo.with(Techniques.ZoomIn).duration(300).playOn(ImgLogoUser);
+                            InputUsername.requestFocus();
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+
+                        }
+                    }).playOn(InputUsername);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            }).duration(100).playOn(TxtUmpan);
+            YoYo.with(Techniques.FadeOut).withListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    YoYo.with(Techniques.SlideInRight).duration(800).withListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                            InputPassword.setVisibility(View.VISIBLE);
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            ImgLogoPassword.setVisibility(View.VISIBLE);
+                            YoYo.with(Techniques.ZoomIn).duration(300).playOn(ImgLogoPassword);
+                            YoYo.with(Techniques.BounceIn).duration(400).withListener(new Animator.AnimatorListener() {
+                                @Override
+                                public void onAnimationStart(Animator animation) {
+                                    CheckUpdate.setVisibility(View.VISIBLE);
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                }
+
+                                @Override
+                                public void onAnimationCancel(Animator animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animator animation) {
+
+                                }
+                            }).playOn(CheckUpdate);
+                            YoYo.with(Techniques.ZoomIn).withListener(new Animator.AnimatorListener() {
+                                @Override
+                                public void onAnimationStart(Animator animation) {
+                                    BtnSubmit.setVisibility(View.VISIBLE);
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    YoYo.with(Techniques.FadeInUp).withListener(new Animator.AnimatorListener() {
+                                        @Override
+                                        public void onAnimationStart(Animator animation) {
+                                            TxtVersion.setVisibility(View.VISIBLE);
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animator animation) {
+                                            animate = false;
+                                        }
+
+                                        @Override
+                                        public void onAnimationCancel(Animator animation) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animator animation) {
+
+                                        }
+                                    }).duration(300).playOn(TxtVersion);
+                                }
+
+                                @Override
+                                public void onAnimationCancel(Animator animation) {
+
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animator animation) {
+
+                                }
+                            }).duration(400).playOn(BtnSubmit);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+
+                        }
+                    }).playOn(InputPassword);
+
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            }).duration(300).playOn(TxtUmpan2);
+        }
+    }
+
+    public static long getDateDiff(String Date1, String Date2, TimeUnit timeUnit) {
+        DateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
+        Date date1 = null;
+        Date date2 = null;
+        long a =0;
+        try {
+            date1 = format.parse(Date1);
+            date2 = format.parse(Date2);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        long diffInMillies = date1.getTime() - date2.getTime();
+        a = timeUnit.convert(diffInMillies,TimeUnit.DAYS)/86400000;
+        return a;
     }
 
     @Override
@@ -171,10 +477,6 @@ public class MainActivity extends Activity {
             case R.id.action_setting:
                 DialodSetting();
                 break;
-/*            case R.id.action_update:
-                Intent in = new Intent(getApplicationContext(),ActivityMaps.class);
-                startActivity(in);
-                break;*/
             default:break;
         }
 
@@ -186,9 +488,7 @@ public class MainActivity extends Activity {
         builder.setTitle("Konfirmasi Keamanan");
         builder.setIcon(R.drawable.dfa_info_ups);
 
-        // Set up the input
         final EditText input = new EditText(this);
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         input.setSingleLine();
         input.setHint("Masukkan Password");
@@ -208,13 +508,106 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if(input.getText().toString().equals(getToday()+"SFA")){
-                    //Toast.makeText(getApplicationContext(), "Password Benar!!!", Toast.LENGTH_SHORT).show();
                     Intent in = new Intent(getApplicationContext(),ActivitySetting.class);
                     in.putExtra(TAG_SETTINGSTATUS,"0");
                     startActivity(in);
                 }else{
                     Toast.makeText(getApplicationContext(), "Password Salah!!!", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        builder.show();
+    }
+
+    public void DialodCekUpdate(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Konfirmasi Cek Update APK");
+        builder.setIcon(R.drawable.dfa_info_ups);
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(20, 5, 30, 0);
+
+        final TextView labelVersi = new TextView(this);
+        labelVersi.setText("Versi APK saat ini : "+VersionAPK);
+
+        layout.addView(labelVersi, params);
+
+        builder.setView(layout);
+
+        // Set up the buttons
+        builder.setPositiveButton("Cek Update", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                new CekUpdateAPK(MainActivity.this).execute();
+                dialog.cancel();
+            }
+        });
+        builder.setNegativeButton("Batal", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    public void DialodKonfirmasiUpdate(final String VersiTerbaru, final String Link){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Konfirmasi Update APK");
+        builder.setIcon(R.drawable.dfa_info_ups);
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(20, 5, 30, 0);
+
+        final TextView labelQ = new TextView(this);
+        labelQ.setText("Apakah anda yakin akan memperbaharui aplikasi SFA?");
+
+        final TextView labelVersi = new TextView(this);
+        labelVersi.setText("Versi APK saat ini : " + VersionAPK);
+
+        final TextView labelVersiNew = new TextView(this);
+        labelVersiNew.setText("Versi APK Update : "+VersiTerbaru);
+
+        layout.addView(labelQ, params);
+        layout.addView(labelVersi, params);
+        layout.addView(labelVersiNew,params);
+
+        builder.setView(layout);
+
+        // Set up the buttons
+        builder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(MainActivity.this, "Silahkan install APK setelah proses download selesai", Toast.LENGTH_LONG).show();
+                //String url = "http://lucia.borwita.co.id:9020/SFA/master/"+Link;
+                String url = "http://"+Web+"/master/"+Link;
+                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+                request.setDescription("Download aplikasi SFA versi : "+VersiTerbaru);
+                request.setTitle("Proses Update");
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    request.allowScanningByMediaScanner();
+                    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                }
+                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, Link);
+                
+                DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                manager.enqueue(request);
+                dialog.cancel();
+            }
+        });
+        builder.setNegativeButton("Batal", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
             }
         });
 
@@ -254,6 +647,13 @@ public class MainActivity extends Activity {
         return  formattedDate;
     }
 
+    public String getToday2(){
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
+        String formattedDate = df.format(c.getTime());
+        return  formattedDate;
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode==KeyEvent.KEYCODE_BACK){
@@ -262,6 +662,8 @@ public class MainActivity extends Activity {
                 public void onClick(DialogInterface dialog, int which) {
                     switch (which){
                         case DialogInterface.BUTTON_POSITIVE:
+                            stopService(ServiceInt);
+                            stopService(ServiceIntFused);
                             MainActivity.this.finish();
                             break;
                         case DialogInterface.BUTTON_NEGATIVE:
@@ -325,7 +727,7 @@ public class MainActivity extends Activity {
 
         @Override
         protected Void doInBackground(Void... arg0) {
-            String url = "http://"+Web+"/pengaturan/ceklogin.php?username="+UserInput+"&cabang=01&codename=1988";
+            String url = "http://"+Web+"/pengaturan/ceklogin.php?username="+UserInput+"&cabang="+Cabang+"&codename=1988"+"&uid="+DeviceID;
             FN_JSONParser jParser = new FN_JSONParser();
 
             try {
@@ -396,6 +798,7 @@ public class MainActivity extends Activity {
         TextView txtLoadingProgress;
         String StatusGenerate ="0";
         int showDialog=0;
+        String minOrder="0";
 
         UpdateMaster(Context context, Handler handler){
             this.context=context;
@@ -437,7 +840,7 @@ public class MainActivity extends Activity {
 
         @Override
         protected Void doInBackground(Void... arg0) {
-            String url = "http://"+Web+"/pengaturan/generatemaster.php?username="+UserInput+"&cabang="+Cabang+"&codename=1988";
+            String url = "http://"+Web+"/pengaturan/generatemaster_dev.php?username="+UserInput+"&cabang="+Cabang+"&codename=1988";
             final FN_JSONParser jParser = new FN_JSONParser();
             String fileName = "MASTER_"+UserInput;
             try {
@@ -452,12 +855,12 @@ public class MainActivity extends Activity {
                     for (int j=0;j<GenerateArray.length();j++){
                         JSONObject d = GenerateArray.getJSONObject(j);
                         String Stat = d.getString("status");
-                        String minOrder = d.getString("minorder");
+                        minOrder = d.getString("minorder");
                         if (Stat.equals("1")){
                             showDialog=2;
                             try {
-                                URL urls = new URL("http://"+Web+"/sqlite/"+fileName);
-                                File file = new File(DB_PATH,fileName);
+                                URL urls = new URL("http://"+Web+"/sqlite/"+fileName+".zip");
+                                File file = new File(DB_PATH,fileName+".zip");
                                 URLConnection uconn = null;
                                 try {
                                     uconn = urls.openConnection();
@@ -482,14 +885,18 @@ public class MainActivity extends Activity {
                                         renameOldMaster();
                                     }
 
-                                    if (renameNewMaster(fileName)){
-                                        deleteOldMaster();
-                                        StatusGenerate = "1";
-                                        db.updateMinOrder(minOrder);
-                                    }else{
-                                        renameNewMaster("MASTER_TMP");
-                                        StatusGenerate = "Gagal Rename File Master";
+                                    //Edit Here
+                                    if(unpackZip(DB_PATH + "/", "MASTER_" + getPref(TAG_LASTLOGIN) + ".zip")){
+                                        if (renameNewMaster(fileName)){
+                                            deleteOldMaster();
+                                            StatusGenerate = "1";
+                                            db.updateMinOrder(minOrder);
+                                        }else{
+                                            renameNewMaster("MASTER_TMP");
+                                            StatusGenerate = "Gagal Rename File Master";
+                                        }
                                     }
+                                    deleteOldMasterZip();
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                     StatusGenerate = e.getMessage();
@@ -548,6 +955,15 @@ public class MainActivity extends Activity {
         }
     }
 
+    public boolean deleteOldMasterZip(){
+        File file = new File(DB_PATH,"MASTER_"+getPref(TAG_LASTLOGIN)+".zip");
+        if(file.exists()){
+            boolean deleted = file.delete();
+            return deleted;
+        }
+        return true;
+    }
+
     public boolean deleteOldMaster(){
         File file = new File(DB_PATH,"MASTER_TMP");
         if(file.exists()){
@@ -577,4 +993,180 @@ public class MainActivity extends Activity {
         return rename;
     }
 
+    //Unzip File
+    private boolean unpackZip(String path, String zipname)
+    {
+        InputStream is;
+        ZipInputStream zis;
+        try
+        {
+            String filename;
+            is = new FileInputStream(path + zipname);
+            zis = new ZipInputStream(new BufferedInputStream(is));
+            ZipEntry ze;
+            byte[] buffer = new byte[1024];
+            int count;
+
+            while ((ze = zis.getNextEntry()) != null)
+            {
+                filename = ze.getName();
+
+                // Need to create directories if not exists, or
+                // it will generate an Exception...
+                if (ze.isDirectory()) {
+                    File fmd = new File(path + filename);
+                    fmd.mkdirs();
+                    continue;
+                }
+
+                FileOutputStream fout = new FileOutputStream(path + filename);
+
+                // cteni zipu a zapis
+                while ((count = zis.read(buffer)) != -1)
+                {
+                    fout.write(buffer, 0, count);
+                }
+
+                fout.close();
+                zis.closeEntry();
+            }
+
+            zis.close();
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    public class CekUpdateAPK extends AsyncTask<Void, Integer, Void> {
+
+        Context context;
+        Handler handler;
+        Dialog dialog;
+        TextView txtLoadingProgress;
+        int showDialog=0;
+        String versi="0",link=" ";
+
+        CekUpdateAPK(Context context, Handler handler){
+            this.context=context;
+            this.handler=handler;
+        }
+
+        CekUpdateAPK(Context context){
+            this.context=context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // create dialog
+            dialog=new Dialog(context);
+            dialog.setCancelable(false);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setContentView(R.layout.p_gifloading);
+            txtLoadingProgress =(TextView) dialog.findViewById(R.id.txtLoading2);
+            txtLoadingProgress.setText("Cek Update APK. . .");
+
+            String path = "file:///android_asset/kotak.gif";
+            WebView wV = (WebView) dialog.findViewById(R.id.webView);
+            wV.loadUrl(path);
+            wV.setScrollBarStyle(WebView.SCROLLBARS_INSIDE_OVERLAY);
+            // disable scroll on touch
+            wV.setOnTouchListener(new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+                    return (event.getAction() == MotionEvent.ACTION_MOVE);
+                }
+            });
+            wV.setVerticalScrollBarEnabled(false);
+            wV.setHorizontalScrollBarEnabled(false);
+
+            dialog.show();
+        }
+
+
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            String url = "http://"+Web+"/pengaturan/versionnative.php?valid=1988";
+            FN_JSONParser jParser = new FN_JSONParser();
+
+            try {
+                JSONObject json = jParser.getJSONFromUrl(url);
+                StatusRequest = json.getString("STATUS");
+                if(StatusRequest.equals("1")){
+                    versi = json.getString("versi");
+                    link = json.getString("link");
+                }
+                showDialog = 1;
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                showDialog=0;
+                publishProgress();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            switch (showDialog){
+                case 0:{
+                    dialog.dismiss();
+                    break;
+                }
+                case 1:{
+                    txtLoadingProgress.setText("Get Info");
+                    break;
+                }
+                default:break;
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            dialog.dismiss();
+            if(StatusRequest.equals("1")){
+                if (versi.equals(VersionAPK)){
+                    Toast.makeText(MainActivity.this, "SFA sudah update ke versi terakhir", Toast.LENGTH_SHORT).show();
+                }else{
+                    DialodKonfirmasiUpdate(versi,link);
+                }
+            }else{
+                Toast.makeText(getApplicationContext(),"Cek Update Gagal",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    public Boolean isMobileDataEnabled(){
+        Object connectivityService = getSystemService(CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) connectivityService;
+
+        Boolean isActive = false;
+
+        try {
+            Class<?> c = Class.forName(cm.getClass().getName());
+            Method m = c.getDeclaredMethod("getMobileDataEnabled");
+            m.setAccessible(true);
+            isActive = (Boolean)m.invoke(cm);
+
+            if (!isActive){
+                NetworkInfo a = cm.getActiveNetworkInfo();
+
+                if (a != null){
+                    isActive = a.isConnected();
+                }
+            }
+
+            return isActive;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return isActive;
+        }
+    }
 }

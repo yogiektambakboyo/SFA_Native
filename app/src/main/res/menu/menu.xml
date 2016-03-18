@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.bcp.SFA_Native.ActivityPembayaranGiro" >
+
+    <item android:id="@+id/action_tambahgiro"
+        android:title="Tambah Giro"
+        android:showAsAction="ifRoom" />
+
+</menu>

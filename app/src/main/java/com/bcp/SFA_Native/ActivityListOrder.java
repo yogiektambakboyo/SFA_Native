@@ -360,6 +360,7 @@ public class ActivityListOrder extends Activity {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 dborder.deleteOrder(adapter.getItem(Pos).getAlamat());
+                dborder.RecekKunjungan(getToday(),getPref(TAG_LASTLOGIN).substring(0, 2)+"/"+getPref(TAG_LASTLOGIN).substring(2, 4)+"/"+getPref(TAG_LASTLOGIN).substring(4),adapter.getItem(Pos).getShipTo());
                 JSONObject PelangganJSON = null;
                 PelangganList.clear();
                 try {
@@ -417,6 +418,13 @@ public class ActivityListOrder extends Activity {
         });
 
         builder.show();
+    }
+
+    public String getToday(){
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        String formattedDate = df.format(c.getTime());
+        return  formattedDate;
     }
 
     public void ShowKonfirmasiProsesReUpload(final int Pos){

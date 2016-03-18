@@ -4,6 +4,8 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,6 +40,9 @@ public class AdapterBarangOrderListView extends BaseAdapter {
         TextView JmlCRT;
         TextView JmlPCS;
         ImageView AssignedImg;
+        TextView JmlInv;
+        TextView LasOrderQty;
+        TextView ItemBarcode;
     }
 
     @Override
@@ -72,6 +77,9 @@ public class AdapterBarangOrderListView extends BaseAdapter {
             holder.AssignedImg = (ImageView) view.findViewById(R.id.Order_ImgCheck);
             holder.JmlCRT = (TextView) view.findViewById(R.id.Order_TxtCRT);
             holder.JmlPCS = (TextView) view.findViewById(R.id.Order_TxtPCS);
+            holder.JmlInv = (TextView) view.findViewById(R.id.Order_TxtINV);
+            holder.LasOrderQty = (TextView) view.findViewById(R.id.Order_TxtLastOrderQty);
+            holder.ItemBarcode = (TextView) view.findViewById(R.id.Order_TxtItemBarcode);
             view.setTag(holder);
         } else {
             holder = (ViewHolder) view.getTag();
@@ -100,8 +108,9 @@ public class AdapterBarangOrderListView extends BaseAdapter {
         holder.AssignedImg.setBackgroundResource(Integer.parseInt(barangdatalist.get(position).getAssignedImg()));
         holder.JmlCRT.setText(barangdatalist.get(position).getJmlCRT());
         holder.JmlPCS.setText(barangdatalist.get(position).getJmlPCS());
-
-
+        holder.JmlInv.setText(barangdatalist.get(position).getStok());
+        holder.LasOrderQty.setText(barangdatalist.get(position).getLastOrderQty());
+        holder.ItemBarcode.setText(barangdatalist.get(position).getItemBarcode());
         return view;
     }
 
@@ -117,7 +126,7 @@ public class AdapterBarangOrderListView extends BaseAdapter {
         {
             for (Data_BarangOrder brg : arraylist)
             {
-                if (brg.getKeterangan().toLowerCase(Locale.getDefault()).contains(charText))
+                if ((brg.getKeterangan().toLowerCase(Locale.getDefault()).contains(charText))||(brg.getKode().toLowerCase(Locale.getDefault()).contains(charText))||(brg.getItemBarcode().toLowerCase(Locale.getDefault()).contains(charText)))
                 {
                     if (brg.getMerek().toLowerCase(Locale.getDefault()).contains(Merek))
                     {
@@ -137,6 +146,14 @@ public class AdapterBarangOrderListView extends BaseAdapter {
                     }
                 }
             }
+        }
+        if (SalesFilter.equals("ORDER")){
+            Collections.sort(barangdatalist, new Comparator<Data_BarangOrder>() {
+                @Override
+                public int compare(Data_BarangOrder ord1, Data_BarangOrder ord2) {
+                    return ord1.getTimeStamp().compareTo(ord2.getTimeStamp());
+                }
+            });
         }
         notifyDataSetChanged();
     }
@@ -161,6 +178,42 @@ public class AdapterBarangOrderListView extends BaseAdapter {
             }
         }
         return TotalSKU;
+    }
+
+    public void filterRetur(String charText, String Merek, String Variant, String SalesFilter) {
+        Merek = Merek.toLowerCase(Locale.getDefault());
+        Variant = Variant.toLowerCase(Locale.getDefault());
+        charText = charText.toLowerCase(Locale.getDefault());
+        barangdatalist.clear();
+        if ((SalesFilter.length()==0)&&(Merek.length() == 0)&&(Variant.length()==0)&&(charText.length() == 0)) {
+            barangdatalist.addAll(arraylist);
+        }
+        else
+        {
+            for (Data_BarangOrder brg : arraylist)
+            {
+                if (brg.getKeterangan().toLowerCase(Locale.getDefault()).contains(charText))
+                {
+                    if (brg.getMerek().toLowerCase(Locale.getDefault()).contains(Merek))
+                    {
+                        if (brg.getVariant().toLowerCase(Locale.getDefault()).contains(Variant)){
+                            if (SalesFilter.equals("SEMUA")){
+                                barangdatalist.add(brg);
+                            } else if(SalesFilter.equals("RETUR")){
+                                if((Integer.parseInt(brg.getJmlPCS())>0)||(Integer.parseInt(brg.getJmlCRT())>0)){
+                                    barangdatalist.add(brg);
+                                }
+                            }else{
+                                if (brg.getLast().equals("1")){
+                                    barangdatalist.add(brg);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 
 }

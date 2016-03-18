@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.bcp.SFA_Native.ActivityPembayaran">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="42dip" android:layout_marginBottom="3dip"
+            android:layout_gravity="center" android:background="#3399FF">
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="42dip" android:layout_marginBottom="3dip"
+                android:layout_gravity="center|left" android:layout_marginLeft="5dip" android:gravity="left">
+                <ImageView
+                    android:layout_width="32dip"
+                    android:layout_height="32dip"
+                    android:src="@drawable/sfa_invoice"
+                    android:layout_marginTop="7dip"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="42dip"
+                    android:text="PEMBAYARAN FAKTUR"
+                    android:id="@+id/textView" android:layout_gravity="center|left" android:textSize="23sp"
+                    android:textColor="@android:color/white" android:textStyle="bold"
+                    android:gravity="center_vertical" android:layout_marginLeft="5dip"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="2dip"
+            android:paddingLeft="5dip"
+            android:paddingTop="5dip">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kodenota      :"
+                android:id="@+id/textView5" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kodenota"
+                android:id="@+id/Pembayaran_Kodenota"
+                android:paddingLeft="5dip" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="2dip"
+            android:paddingLeft="5dip">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Perusahaan  :"
+                android:id="@+id/textView6" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Perusahaan"
+                android:id="@+id/Pembayaran_Perusahaan"
+                android:paddingLeft="5dip" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="2dip"
+            android:paddingLeft="5dip"
+            android:paddingBottom="5dip">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total Bayar   : Rp. "
+                android:id="@+id/textView7" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total bayar"
+                android:id="@+id/Pembayaran_TotalBayar"
+                android:paddingLeft="5dip" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="5dip"
+                android:paddingBottom="5dip"
+                android:paddingLeft="5dip"
+                android:background="#CCCCCC"
+                android:layout_marginBottom="5dip">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Pembayaran : "
+                    android:id="@+id/textView11"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="10dip">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tunai        : Rp. "
+                    android:id="@+id/textView13" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="99.9999,00"
+                    android:id="@+id/Pembayaran_Tunai" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="10dip">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cek/BG    : Rp. "
+                    android:id="@+id/textView18" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="99.9999,00"
+                    android:id="@+id/Pembayaran_BG" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="10dip">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Transfer   : Rp. "
+                    android:id="@+id/textView16" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="99.9999,00"
+                    android:id="@+id/Pembayaran_Transfer" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|center_horizontal"
+            android:paddingLeft="10dip"
+            android:layout_marginTop="10dip">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="90dip"
+                android:layout_height="90dip">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dip"
+                    android:weightSum="1"
+                    android:gravity="center_vertical|center_horizontal">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:gravity="center|center_vertical|center_horizontal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/Pembayaran_ImgTunai"
+                            android:background="@drawable/sfa_tunai" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/Pembayaran_TunaiDone"
+                            android:background="@drawable/sfa_done"
+                            android:layout_alignParentTop="false"
+                            android:layout_alignParentBottom="false"
+                            android:layout_alignParentRight="false" />
+
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical|center_horizontal">
+
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Tunai"
+                        android:id="@+id/textView17"
+                        android:gravity="center_vertical|center_horizontal"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="90dip"
+                android:layout_height="90dip">
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dip"
+                    android:gravity="center_vertical|center_horizontal">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:gravity="center_vertical|center_horizontal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/Pembayaran_ImgCekBG"
+                            android:background="@drawable/sfa_cekbg" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/Pembayaran_CekBGDone"
+                            android:background="@drawable/sfa_done" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical|center_horizontal">
+
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Cek/BG"
+                        android:gravity="center_vertical|center_horizontal"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="90dip"
+                android:layout_height="90dip">
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dip"
+                    android:gravity="center_vertical|center_horizontal">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical|center_horizontal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/Pembayaran_ImgTransfer"
+                            android:background="@drawable/sfa_transfer" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/Pembayaran_TransferDone"
+                            android:background="@drawable/sfa_done" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical|center_horizontal">
+
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Transfer"
+                        android:gravity="center_vertical|center_horizontal"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|center_horizontal">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="140dip"
+                android:layout_height="90dip"
+                android:gravity="center_vertical|center_horizontal">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dip"
+                    android:gravity="center_vertical|center_horizontal">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical|center_horizontal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/Pembayaran_ImgTT"
+                            android:background="@drawable/sfa_tandaterima" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/Pembayaran_TTDone"
+                            android:background="@drawable/sfa_done" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical|center_horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tanda Terima"
+                        android:id="@+id/textView19"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="140dip"
+                android:layout_height="90dip"
+                android:gravity="center_vertical|center_horizontal">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dip"
+                    android:gravity="center_vertical|center_horizontal">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical|center_horizontal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/Pembayaran_ImgStempel"
+                            android:background="@drawable/sfa_stempel" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/Pembayaran_StempelDone"
+                            android:background="@drawable/sfa_done" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical|center_horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Stempel"
+                        android:id="@+id/textView20"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|center_horizontal"
+            android:paddingBottom="10dip"
+            android:layout_marginTop="10dip">
+
+            <com.dd.CircularProgressButton
+                android:id="@+id/btnPembayaranSubmit"
+                android:layout_width="160dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="5dp"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                app:cpb_cornerRadius="8dp"
+                app:cpb_textComplete="Berhasil"
+                app:cpb_iconComplete="@drawable/ic_action_accept"
+                app:cpb_textError="Gagal"
+                app:cpb_iconError="@drawable/ic_action_cancel"
+                app:cpb_textIdle="Simpan" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

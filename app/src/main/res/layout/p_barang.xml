@@ -51,7 +51,7 @@
                     android:id="@+id/search"
                     android:layout_width="270dip"
                     android:layout_height="40sp" android:singleLine="true" android:textSize="14sp"
-                    android:hint="Masukkan Kata Kunci" android:maxLength="12">
+                    android:hint="Masukkan Kata Kunci" android:maxLength="20">
             </EditText>
             <ImageView
                     android:layout_width="32dip"
@@ -68,19 +68,19 @@
                     android:layout_width="90dip"
                     android:layout_height="wrap_content"
                     android:text="SKU "
-                    android:id="@+id/textView" android:clickable="false" android:editable="false" android:textSize="16sp"
+                    android:clickable="false" android:editable="false" android:textSize="16sp"
                     android:textStyle="bold" android:layout_marginLeft="10dip" android:textColor="#3399FF"/>
             <TextView
                     android:layout_width="150dip"
                     android:layout_height="wrap_content"
                     android:text="Nama "
-                    android:id="@+id/textView" android:textSize="16sp" android:textStyle="bold"
+                    android:textSize="16sp" android:textStyle="bold"
                     android:textColor="#3399FF"/>
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Harga"
-                    android:id="@+id/textView" android:textSize="16sp" android:textStyle="bold"
+                    android:textSize="16sp" android:textStyle="bold"
                     android:textColor="#3399FF"/>
         </LinearLayout>
         <ListView

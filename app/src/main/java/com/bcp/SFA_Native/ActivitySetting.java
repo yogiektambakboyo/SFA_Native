@@ -17,6 +17,8 @@ import com.bcp.SFA_Native.FN_DBHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.UUID;
+
 
 public class ActivitySetting extends Activity {
     //DB Handler
@@ -189,10 +191,14 @@ public class ActivitySetting extends Activity {
 
 
         TxtSecurityCode = (TextView) findViewById(R.id.Setting_TxtSecureCode);
+        if (getPref(TAG_DEVICEID).length()<3){
+            setPrefDeviceID(getDeviceID());
+        }
+
         TxtSecurityCode.setText(getPref(TAG_DEVICEID));
 
         SpnCabang = (Spinner) findViewById(R.id.Setting_SpinnerCabang);
-        CabangArray = new String[24];
+        CabangArray = new String[27];
         CabangArray[0]=("-- Pilih Cabang --");
         CabangArray[1]=("Surabaya");
         CabangArray[2]=("Malang");
@@ -200,9 +206,9 @@ public class ActivitySetting extends Activity {
         CabangArray[4]=("Kediri");
         CabangArray[5]=("Denpasar");
         CabangArray[6]=("Manado");
-        CabangArray[7]=("Makassar");
+        CabangArray[7]=("Makassar Food");
         CabangArray[8]=("Pare-Pare");
-        CabangArray[9]=("Palu");
+        CabangArray[9]=("Palu Food");
         CabangArray[10]=("Palopo");
         CabangArray[11]=("Madura");
         CabangArray[12]=("Gorontalo");
@@ -217,6 +223,9 @@ public class ActivitySetting extends Activity {
         CabangArray[21]=("Sumbawa");
         CabangArray[22]=("Toli-Toli");
         CabangArray[23]=("Bima");
+        CabangArray[24]=("Atambua");
+        CabangArray[25]=("Puncak Jaya");
+        CabangArray[26]=("Maumere");
 
         ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_spinner_item, CabangArray);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -225,9 +234,9 @@ public class ActivitySetting extends Activity {
         SpnCabang.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if(position<9){
-                    Cabang = "0"+Integer.toString(position);
-                }else{
+                if (position < 9) {
+                    Cabang = "0" + Integer.toString(position);
+                } else {
                     Cabang = Integer.toString(position);
                 }
             }
@@ -244,11 +253,32 @@ public class ActivitySetting extends Activity {
 
         ImgWebServer.setVisibility(View.GONE);
         ImgCabang.setVisibility(View.GONE);
+
     }
 
     public String getPref(String KEY){
         SharedPreferences SettingPref = getSharedPreferences(TAG_PREF, Context.MODE_PRIVATE);
         String Value=SettingPref.getString(KEY,"0");
         return  Value;
+    }
+
+    public String getDeviceID(){
+        final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+
+        final String tmDevice, androidId;
+        tmDevice = "" + tm.getDeviceId();
+        //tmSerial = "" + tm.getSimSerialNumber();
+        androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+
+        UUID deviceUuid = new UUID(androidId.hashCode(), (long)tmDevice.hashCode() << 32);
+        String deviceId = deviceUuid.toString();
+        return  deviceId;
+    }
+
+    public void setPrefDeviceID(String DeviceID){
+        SharedPreferences SettingPref = getSharedPreferences(TAG_PREF, Context.MODE_PRIVATE);
+        SharedPreferences.Editor SettingPrefEditor = SettingPref.edit();
+        SettingPrefEditor.putString(TAG_DEVICEID,DeviceID);
+        SettingPrefEditor.commit();
     }
 }

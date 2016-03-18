@@ -58,7 +58,7 @@
                     android:id="@+id/Pelanggan_Search"
                     android:layout_width="220dip"
                     android:layout_height="40sp" android:singleLine="true" android:textSize="14sp"
-                    android:hint="Masukkan Kata Kunci" android:maxLength="12">
+                    android:hint="Masukkan Kata Kunci" android:maxLength="20">
             </EditText>
             <ImageView
                     android:layout_width="32dip"

@@ -13,8 +13,12 @@ public class Data_BarangOrder {
     private String JmlCRT;
     private String JmlPCS;
     private String Last;
+    private String Stok;
+    private String LastOrderQty;
+    private String ItemBarcode;
+    private String TimeStamp;
 
-    public Data_BarangOrder(String Kode,String Nama,String Keterangan, String Merek,String Variant, String CRT,String Harga, String Assigned, String AssignedImg, String JmlCRT, String JmlPCS,String Last){
+    public Data_BarangOrder(String Kode,String Nama,String Keterangan, String Merek,String Variant, String CRT,String Harga, String Assigned, String AssignedImg, String JmlCRT, String JmlPCS,String Last,String Stok,String LastOrderQty,String ItemBarcode,String TimeStamp){
         this.Kode = Kode;
         this.Nama = Nama;
         this.Keterangan = Keterangan;
@@ -27,6 +31,34 @@ public class Data_BarangOrder {
         this.JmlCRT = JmlCRT;
         this.JmlPCS = JmlPCS;
         this.Last = Last;
+        this.Stok = Stok;
+        this.LastOrderQty = LastOrderQty;
+        this.ItemBarcode = ItemBarcode;
+        this.TimeStamp = TimeStamp;
+    }
+
+    public String getTimeStamp() {
+        return TimeStamp;
+    }
+
+    public void setTimeStamp(String timeStamp) {
+        TimeStamp = timeStamp;
+    }
+
+    public String getItemBarcode() {
+        return ItemBarcode;
+    }
+
+    public void setItemBarcode(String itemBarcode) {
+        ItemBarcode = itemBarcode;
+    }
+
+    public String getStok() {
+        return Stok;
+    }
+
+    public void setStok(String stok) {
+        Stok = stok;
     }
 
     public String getAssigned() {
@@ -123,5 +155,13 @@ public class Data_BarangOrder {
 
     public void setLast(String last) {
         Last = last;
+    }
+
+    public String getLastOrderQty() {
+        return LastOrderQty;
+    }
+
+    public void setLastOrderQty(String lastOrderQty) {
+        LastOrderQty = lastOrderQty;
     }
 }

@@ -88,9 +88,13 @@ public class ActivityPelanggan extends Activity {
 
         JSONObject PelangganJSON = null;
 
+        Calendar cald = Calendar.getInstance();
+        int day = cald.get(Calendar.DAY_OF_WEEK);
+        int weekyear = cald.get(Calendar.WEEK_OF_YEAR);
+
         if(dbFile.exists()){
             try {
-                PelangganJSON = db.getPelanggan();
+                PelangganJSON = db.getPelanggan(Integer.toString(weekyear));
                 // Getting Array of Pelanggan
                 PelangganArray = PelangganJSON.getJSONArray(TAG_PELANGGANDATA);
 
@@ -197,10 +201,6 @@ public class ActivityPelanggan extends Activity {
 
         SpnHari = (Spinner) findViewById(R.id.SpnPelangganDay);
         SpnHari.setAdapter(adapters);
-
-
-        Calendar cald = Calendar.getInstance();
-        int day = cald.get(Calendar.DAY_OF_WEEK);
 
         SpnHari.setSelection(day);
 

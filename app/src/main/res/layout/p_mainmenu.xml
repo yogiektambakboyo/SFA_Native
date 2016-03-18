@@ -8,7 +8,7 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:orientation="horizontal"
                   android:layout_width="fill_parent"
-                  android:layout_height="64dip" android:layout_marginBottom="10dip"
+                  android:layout_height="56dip" android:layout_marginBottom="10dip"
                   android:layout_gravity="center" android:background="#3399FF">
         <ImageView
                 android:layout_width="wrap_content"
@@ -16,13 +16,30 @@
                 android:id="@+id/MainMenu_Icon" android:src="@drawable/sfa_home" android:layout_gravity="center"
                 android:layout_marginLeft="5dip"/>
         <TextView
-                android:layout_width="fill_parent"
+                android:layout_width="200dip"
                 android:layout_height="64dip"
                 android:text="MENU UTAMA"
                 android:id="@+id/txtMainMenuUtama" android:textSize="25sp"
                 android:textColor="@android:color/white" android:textStyle="bold"
                 android:gravity="center_vertical|left" android:layout_gravity="center" android:layout_marginLeft="10dip"
                 />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"
+            android:gravity="center_vertical|center_horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/MainMenu_ImgSummary"
+                android:src="@drawable/ic_action_go_to_today"
+                android:layout_gravity="right"
+                android:paddingRight="10dip" />
+        </LinearLayout>
+
     </LinearLayout>
 
     <ListView

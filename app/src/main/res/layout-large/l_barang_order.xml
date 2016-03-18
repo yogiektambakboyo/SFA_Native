@@ -22,6 +22,7 @@
                 android:layout_height="wrap_content"
                 android:text="Keterangan" android:textSize="15sp"
                 android:textColor="#3399FF" android:layout_gravity="center_vertical" android:layout_marginLeft="5dip"/>
+
         <TextView
                 android:id="@+id/Order_TxtCRT"
                 android:layout_width="60dip"
@@ -34,6 +35,14 @@
                 android:layout_height="wrap_content"
                 android:text="PCS" android:textSize="15sp"
                 android:textColor="#3399FF" android:layout_gravity="center_vertical" android:gravity="center_vertical|center_horizontal"/>
+
+        <TextView
+            android:id="@+id/Order_TxtINV"
+            android:layout_width="60dip"
+            android:layout_height="wrap_content"
+            android:text="INV" android:textSize="15sp"
+            android:textColor="#3399FF" android:layout_gravity="center" android:gravity="center_vertical|center_horizontal"/>
+
         <TextView
                 android:id="@+id/Order_TxtPrice"
                 android:layout_width="wrap_content"
@@ -44,6 +53,16 @@
                 android:layout_width="20dip"
                 android:layout_height="wrap_content" android:text="Assigned"
                 android:layout_gravity="center_horizontal|top" android:textSize="13sp" android:visibility="gone"/>
+        <TextView
+            android:id="@+id/Order_TxtLastOrderQty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Last Order Qty"
+            android:layout_gravity="center_vertical" android:textSize="13sp" android:textColor="#3399FF" android:visibility="gone"/>
+        <TextView
+            android:id="@+id/Order_TxtItemBarcode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Item Barcode"
+            android:layout_gravity="center_vertical" android:textSize="13sp" android:textColor="#3399FF" android:visibility="gone"/>
         <ImageView
                 android:layout_width="20dip"
                 android:layout_height="20dip"

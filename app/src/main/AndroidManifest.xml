@@ -1,50 +1,157 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bcp.SFA_Native"
-    android:versionCode="1"
-    android:versionName="1.0">
+    android:versionCode="2"
+    android:versionName="0.2.6">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <supports-screens android:smallScreens="true"
-                      android:normalScreens="true"
-                      android:largeScreens="true"
-                      android:xlargeScreens="true"
-                      android:anyDensity="true" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
 
     <application
+        android:name=".FnACRACrashReport"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name">
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <activity
-            android:name="com.bcp.SFA_Native.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.Holo.Light" >
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ActivitySetting" android:theme="@android:style/Theme.Holo.Light.NoActionBar"/>
-        <activity android:name=".ActivityMainMenu" android:theme="@android:style/Theme.Holo.Light.NoActionBar"/>
-        <activity android:name=".AdapterCustomSimple"/>
-        <activity android:name=".ActivityPelanggan" android:theme="@android:style/Theme.Holo.Light.NoActionBar" android:windowSoftInputMode="stateHidden"/>
-        <activity android:name=".ActivityBarang" android:theme="@android:style/Theme.Holo.Light.NoActionBar" android:windowSoftInputMode="stateHidden"/>
-        <activity android:name=".AdapterBarangListView"/>
-        <activity android:name=".ActivityOrder" android:theme="@android:style/Theme.Holo.Light.NoActionBar" android:windowSoftInputMode="stateHidden"/>
-        <activity android:name=".AdapterBarangOrderListView"/>
-        <activity android:name=".ActivityListOrder" android:theme="@android:style/Theme.Holo.Light.NoActionBar" android:windowSoftInputMode="stateHidden"/>
-        <activity android:name=".ActivitySync"  android:theme="@android:style/Theme.Holo.Light.NoActionBar" android:windowSoftInputMode="stateHidden"/>
-        <service android:name=".ServiceLocation"/>
+        <activity
+            android:name=".ActivitySetting"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar" />
+        <activity
+            android:name=".ActivityMainMenu"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar" />
+        <activity android:name=".AdapterCustomSimple" />
+        <activity
+            android:name=".ActivityPelanggan"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".ActivityPelangganInv"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".ActivityPelangganDev"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".ActivityInventory"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".ActivityBarang"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity android:name=".AdapterBarangListView" />
+        <activity
+            android:name=".ActivityOrder"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity android:name=".AdapterBarangOrderListView" />
+        <activity android:name=".AdapterBarangInventoryListView" />
+        <activity
+            android:name=".ActivityListOrder"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".ActivitySync"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+
+        <service android:name=".ServiceLocation" />
+
+        <activity
+            android:name=".ActivityMenuTask"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar" />
+        <activity
+            android:name=".ActivityListInv"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar" />
+        <activity
+            android:name=".ActivityListRetur"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar" />
+        <activity
+            android:name=".ActivityRetur"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar" />
+        <activity
+            android:name=".ActivityPromosi"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity android:name=".AdapterPromosi" />
+        <activity
+            android:name=".Activity_Penagihan"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".ActivityPFaktur"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".ActivityPembayaran"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".ActivityPembayaranGiro"
+            android:label="@string/title_activity_activity_pembayaran_giro"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ActivityQPPelanggan"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".ActivityQPPembayaran"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+
+        <service
+            android:name=".ServiceLocationGFused"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

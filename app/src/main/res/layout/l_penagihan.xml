@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dip" android:layout_marginBottom="2dip" android:paddingTop="2dip"
+        android:paddingBottom="2dip" android:background="@android:color/white" android:alpha="0.9">
+
+        <LinearLayout
+            android:layout_width="260dip"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/LPenagihan_Kodenota"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:paddingTop="6dip"
+                android:paddingBottom="2dip"
+                android:layout_marginLeft="5dip" android:text="Kodenota" android:textStyle="bold"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" android:layout_marginLeft="7dip">
+                <TextView
+                    android:layout_width="80dip"
+                    android:layout_height="wrap_content"
+                    android:text="Tgl              :"
+                    android:id="@+id/TextView" android:layout_gravity="left|center_vertical" android:textSize="12sp"
+                    android:textColor="#3399FF"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tgl"
+                    android:layout_marginLeft="5dip"
+                    android:id="@+id/LPenagihan_Tgl" android:layout_gravity="left|center_vertical" android:textSize="12sp"
+                    android:textColor="#3399FF" android:textStyle="bold"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" android:layout_marginLeft="7dip">
+                <TextView
+                    android:layout_width="80dip"
+                    android:layout_height="wrap_content"
+                    android:text="Collector   :"
+                    android:id="@+id/TextView2" android:layout_gravity="left|center_vertical" android:textSize="12sp"
+                    android:textColor="#3399FF"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Collector"
+                    android:layout_marginLeft="5dip"
+                    android:id="@+id/LPenagihanCollector" android:layout_gravity="left|center_vertical"
+                    android:textColor="#3399FF" android:textStyle="bold" android:textSize="12sp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" android:layout_gravity="center|right" android:gravity="right">
+            <ImageView
+                android:layout_width="28dip"
+                android:layout_height="28dip"
+                android:id="@+id/LPenagihan_Image" android:background="@drawable/arrow_left"
+                android:layout_gravity="center|right" android:layout_marginRight="10dip"/>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</LinearLayout>

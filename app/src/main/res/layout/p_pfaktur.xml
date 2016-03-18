@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@android:color/white">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginBottom="3dip"
+            android:layout_gravity="center" android:background="#3399FF">
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="60dip" android:layout_marginBottom="3dip"
+                android:layout_gravity="center|left" android:layout_marginLeft="5dip" android:gravity="left"
+                android:paddingRight="20dip">
+                <ImageView
+                    android:layout_width="32dip"
+                    android:layout_height="32dip"
+                    android:id="@+id/PenagihanIcon" android:src="@drawable/sfa_invoice"
+                    android:layout_marginTop="7dip"/>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="5dip">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="FAKTUR"
+                        android:id="@+id/textView" android:layout_gravity="center|left" android:textSize="22sp"
+                        android:textColor="@android:color/white" android:textStyle="bold"
+                        android:gravity="center_vertical" android:layout_marginLeft="5dip"
+                        android:textIsSelectable="false" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="NP : xxxxxxx"
+                        android:id="@+id/PenagihanFaktur_NP"
+                        android:layout_marginLeft="5dip"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/PenagihanFaktur_SpnFilter"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="2dip">
+            <EditText
+                android:id="@+id/PenagihanFakturSearch"
+                android:layout_width="220dip"
+                android:layout_height="40sp" android:singleLine="true" android:textSize="14sp"
+                android:hint="Masukkan Kata Kunci" android:maxLength="20">
+            </EditText>
+            <ImageView
+                android:layout_width="32dip"
+                android:layout_height="32dip"
+                android:id="@+id/imageView" android:background="@drawable/sfa_search"
+                android:layout_marginLeft="10dip" android:layout_gravity="center|right"
+                android:layout_marginRight="5dip"/>
+        </LinearLayout>
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/PenagihanFaktur_Loading"
+            android:layout_gravity="center"
+            android:indeterminate="false" />
+
+        <ListView
+            android:id="@+id/PenagihanFaktur_ListView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/PenagihanFakturSearch" android:layout_above="@+id/linearLayout"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

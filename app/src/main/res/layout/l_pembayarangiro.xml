@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" android:orientation="vertical">
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" android:layout_alignParentLeft="true" android:layout_marginLeft="5dip"
+        android:paddingTop="5dip" android:paddingBottom="5dip">
+        <TextView
+            android:id="@+id/Giro_No"
+            android:layout_width="80dip"
+            android:layout_height="wrap_content"
+            android:text="No" android:layout_gravity="center"
+            android:layout_marginRight="5dip" android:textSize="12sp" android:layout_marginTop="2dip"
+            android:textColor="#3399FF"/>
+
+
+        <TextView
+            android:id="@+id/Giro_Nominal"
+            android:layout_width="100dip"
+            android:layout_height="wrap_content"
+            android:text="Nominal" android:layout_gravity="center"
+            android:layout_marginRight="5dip" android:textSize="12sp" android:layout_marginTop="2dip"
+            android:textColor="#3399FF"/>
+
+        <TextView
+            android:id="@+id/Giro_Tgl"
+            android:layout_width="70dip"
+            android:layout_height="wrap_content"
+            android:text="Tgl" android:layout_gravity="center"
+            android:layout_marginRight="5dip" android:textSize="12sp" android:layout_marginTop="2dip"
+            android:textColor="#3399FF" android:visibility="visible"/>
+        <ImageView
+            android:layout_width="38dip"
+            android:layout_height="34dip"
+            android:id="@+id/ImgBtn_DelGiro" android:layout_marginLeft="5dip" android:src="@drawable/ic_action_discard"/>
+
+
+    </LinearLayout>
+
+</LinearLayout>

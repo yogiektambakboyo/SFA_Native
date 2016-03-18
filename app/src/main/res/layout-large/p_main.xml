@@ -1,50 +1,149 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
-              android:longClickable="false" android:background="@android:color/white">
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:longClickable="false" android:background="@android:color/white">
     <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/Login_Icon" android:layout_gravity="center" android:src="@drawable/sfa_icon"/>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:longClickable="false"
+        android:layout_gravity="center"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_marginTop="15dip">
+        <ImageView
+            android:layout_width="40dip"
+            android:layout_height="wrap_content"
+            android:id="@+id/Login_IconUser"
+            android:src="@drawable/sfa_user"
+            android:layout_marginRight="10dip" />
+
+        <com.wrapp.floatlabelededittext.FloatLabeledEditText
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <EditText
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/Login_InputUsername" android:layout_gravity="center"
+                android:hint="Username" android:layout_marginTop="10dip" android:layout_marginBottom="10dip"
+                android:singleLine="true"
+                android:digits="/0123456789qwertzuiopasdfghjklyxcvbnmQWERTZUIOPASDFGHJKLYXCVBNM" android:maxLength="15"
+                android:textColor="#3399FF"
+                android:visibility="invisible" />
+        </com.wrapp.floatlabelededittext.FloatLabeledEditText>
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:longClickable="false"
+        android:layout_gravity="center"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_marginTop="5dip">
+        <ImageView
+            android:layout_width="40dip"
+            android:layout_height="wrap_content"
+            android:src="@drawable/sfa_pass"
+            android:layout_marginRight="10dip"
+            android:id="@+id/Login_IconPassword"
+            android:visibility="visible" />
+        <com.wrapp.floatlabelededittext.FloatLabeledEditText
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+            <EditText
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/Login_InputPassword" android:layout_gravity="center" android:password="true"
+                android:hint="Password" android:layout_marginTop="10dip" android:layout_marginBottom="10dip"
+                android:singleLine="true"
+                android:digits="/0123456789qwertzuiopasdfghjklyxcvbnmQWERTZUIOPASDFGHJKLYXCVBNM" android:maxLength="15"
+                android:longClickable="true" android:textColor="#3399FF"
+                android:visibility="invisible" />
+        </com.wrapp.floatlabelededittext.FloatLabeledEditText>
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:longClickable="false"
+        android:layout_marginBottom="15dip"
+        android:layout_marginTop="5dip">
+        <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/imageView" android:layout_gravity="center" android:src="@drawable/sfa_icon"/>
-    <EditText
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/Login_InputUsername" android:layout_gravity="center"
-            android:hint="Username" android:layout_marginTop="10dip" android:layout_marginBottom="10dip"
-            android:singleLine="true"
-            android:digits="/0123456789qwertzuiopasdfghjklyxcvbnmQWERTZUIOPASDFGHJKLYXCVBNM" android:maxLength="15"
-            android:textColor="#3399FF"/>
-    <EditText
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/Login_InputPassword" android:layout_gravity="center" android:password="true"
-            android:hint="Password" android:layout_marginTop="10dip" android:layout_marginBottom="10dip"
-            android:singleLine="true"
-            android:digits="/0123456789qwertzuiopasdfghjklyxcvbnmQWERTZUIOPASDFGHJKLYXCVBNM" android:maxLength="15"
-            android:longClickable="true" android:textColor="#3399FF"/>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:orientation="vertical"
-                  android:layout_width="fill_parent"
-                  android:layout_height="wrap_content"
-                  android:longClickable="false"
-                  android:layout_marginBottom="15dip">
-        <CheckBox
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=" Update Master"
-                android:id="@+id/MainMenu_CBUpdate" android:layout_gravity="center" android:checked="false"
-                android:textColor="#3399FF" android:textStyle="bold"
-                android:singleLine="true" android:layout_marginBottom="5dip"
-                android:button="@drawable/cbox_white"
-                />
+            android:text=" Update Master"
+            android:id="@+id/MainMenu_CBUpdate" android:layout_gravity="center" android:checked="false"
+            android:textColor="#3399FF" android:textStyle="bold"
+            android:singleLine="true" android:layout_marginBottom="5dip"
+            android:button="@drawable/cbox_white"
+            android:visibility="invisible" />
     </LinearLayout>
-    <Button
+    <com.andexert.library.RippleView
+        android:id="@+id/RpViewBtn"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/more2"
+        android:layout_gravity="center"
+        rv_centered="true">
+
+        <Button
             android:layout_width="400dp"
-            android:layout_height="50dip"
+            android:layout_height="wrap_content"
             android:text="Login"
             android:id="@+id/Login_BtnSubmit" android:layout_gravity="center" style="@style/btnStyleBlue"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:visibility="invisible" />
+    </com.andexert.library.RippleView>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal|bottom">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal|bottom"
+            android:paddingBottom="10dip"
+            android:paddingTop="10dip"
+            android:background="#3399FF">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Version : 0.0.0"
+                android:id="@+id/MainMenu_TxtVersion"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:visibility="invisible" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Umpan"
+                android:id="@+id/LoginUmpan"
+                android:visibility="gone" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Umpan"
+                android:id="@+id/LoginUmpan2"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>
 
